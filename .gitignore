@@ -1,0 +1,5 @@
+.vscode
+.objs
+*.so
+test/*
+!test/*.c
