@@ -11,6 +11,8 @@ int	main(void)
 	int	*ptr = malloc(5);
 	(void)ptr;
 
+	show_alloc_mem();
+
 	// for (int i = 0; i < 5; i++)
 	// 	ptr[i] = i;
 
