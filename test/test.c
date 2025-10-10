@@ -9,12 +9,13 @@
 int	main(void)
 {
 	int	*ptr = malloc(5);
+	(void)ptr;
 
-	for (int i = 0; i < 5; i++)
-		ptr[i] = i;
+	// for (int i = 0; i < 5; i++)
+	// 	ptr[i] = i;
 
-	for (int i = 0; i < 5; i++)
-		printf("%d\n", ptr[i]);
+	// for (int i = 0; i < 5; i++)
+	// 	printf("%d\n", ptr[i]);
 
 	// free(ptr);
 	return 0;
