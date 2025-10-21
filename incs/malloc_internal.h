@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/20 18:13:38 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/21 14:32:46 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,9 @@
 #define SMALL_BLOCK_SIZE 1024
 
 #define GET_PAGE_SIZE sysconf(_SC_PAGE_SIZE)
+
+#define GET_BLOCKS_FROM_ZONE(zone) ((t_block *)((char *)zone + sizeof(t_zone)))
+#define GET_BLOCK_PTR_FROM_BLOCKS(blocks) ((void *)((char *)blocks + sizeof(t_block)))
 
 typedef enum {
 	TINY,
