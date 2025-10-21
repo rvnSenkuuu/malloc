@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/20 19:35:26 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/21 18:24:03 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,23 +50,43 @@ void	ft_putnbr(size_t n)
 
 void	print_zone_info(t_zone *zone)
 {
+	char	*buf;
+	switch (zone->type) {
+		case TINY:
+			buf = "TINY";
+			break;
+		case SMALL:
+			buf = "SMALL";
+			break;
+		case LARGE:
+			buf = "LARGE";
+			break;
+		default: break;
+	}
+	ft_putstr(buf);
+	ft_putstr(" : ");
 	ft_putstr("0x");
 	ft_puthex((size_t)zone);
-	ft_putstr(" - ");
-	ft_putstr("0x");
-	ft_puthex((size_t)zone + zone->size);
-	ft_putstr(" : ");
-	ft_putnbr(zone->size);
-	ft_putstr(" bytes\n");
+	ft_putstr("\n");
+
+	for (t_zone *current = zone; current; current = current->next) {
+		ft_putstr("0x");
+		ft_puthex((size_t)current);
+		ft_putstr(" - ");
+		ft_putstr("0x");
+		ft_puthex((size_t)current + current->size);
+		ft_putstr(" : ");
+		ft_putnbr(current->size);
+		ft_putstr(" bytes\n");
+	}
 }
 
 void	show_alloc_mem(void)
 {
-	ft_putstr("LARGE: \n");
-	t_zone	*current = g_allocator.large;
-
-	while (current) {
-		print_zone_info(current);
-		current = current->next;
-	}
+	if (g_allocator.tiny)
+		print_zone_info(g_allocator.tiny);
+	if (g_allocator.small)
+		print_zone_info(g_allocator.small);
+	if (g_allocator.large)
+		print_zone_info(g_allocator.large);
 }
