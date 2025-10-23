@@ -10,14 +10,16 @@
 int	main(void)
 {
 	int	*ptr = malloc(2048);
-
 	for (size_t i = 0; i < 2048 / sizeof(int); i++)
 		ptr[i] = i;
 		
 	int	*ptr1 = malloc(3000);
-		
 	for (size_t i = 0; i < 3000 / sizeof(int); i++)
 		ptr1[i] = i;
+
+	int	*ptr2 = malloc(10);
+	for (size_t i = 0; i < 10 / sizeof(int); i++)
+		ptr2[i] = i;
 		
 	show_alloc_mem();
 	// free(ptr);

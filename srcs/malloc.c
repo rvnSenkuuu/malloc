@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/21 18:31:51 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/23 10:20:58 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,9 +71,16 @@ t_zone	*create_small_zone(t_zone_type type, size_t size)
 	zone->type = type;
 	zone->size = real_size;
 	zone->next = NULL;
+
+	zone->blocks = GET_BLOCKS_FROM_ZONE(zone);
+	zone->blocks->free = false;
+	zone->blocks->size = size;
+	zone->blocks->next = NULL;
+
+	return zone;
 }
 
-void	*small_malloc(t_zone *global_zone, size_t size)
+void	*small_malloc(t_zone **global_zone, size_t size)
 {
 	t_zone_type	type;
 	t_zone	*zone;
@@ -83,11 +90,12 @@ void	*small_malloc(t_zone *global_zone, size_t size)
 	else
 		type = SMALL;
 
-	if (!global_zone) {
+	if (!*global_zone) {
 		zone = create_small_zone(type, size);
 		if (!zone)
 			return NULL;
 		add_zone_to_allocator(global_zone, zone);
+		return GET_BLOCK_PTR_FROM_BLOCKS(zone->blocks);
 	}
 
 	return NULL;
@@ -101,9 +109,9 @@ void	*malloc(size_t size)
 	void	*ptr = NULL;
 
 	if (size <= TINY_BLOCK_SIZE)
-		ptr = small_malloc(g_allocator.tiny, size);
+		ptr = small_malloc(&g_allocator.tiny, size);
 	else if (size <= SMALL_BLOCK_SIZE)
-		ptr = small_malloc(g_allocator.small, size);
+		ptr = small_malloc(&g_allocator.small, size);
 	else 
 		ptr = large_malloc(size);
 
