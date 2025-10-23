@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/21 14:32:46 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/23 14:54:28 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@
 
 #define TINY_BLOCK_SIZE 256
 #define SMALL_BLOCK_SIZE 1024
+#define MIN_BLOCK_COUNT 100
 
 #define GET_PAGE_SIZE sysconf(_SC_PAGE_SIZE)
 
@@ -45,11 +46,13 @@ typedef struct __attribute__((aligned(ALIGNMENT))) s_block {
 	bool	free;
 	size_t	size;
 	struct s_block	*next;
+	struct s_block	*prev;
 } t_block;
 
 typedef struct __attribute__((aligned(ALIGNMENT))) s_zone {
 	t_zone_type	type;
 	size_t	size;
+	size_t	used_size;
 	t_block	*blocks;
 	struct s_zone	*next;
 } t_zone;

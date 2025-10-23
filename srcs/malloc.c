@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/23 10:20:58 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/23 15:55:10 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,13 +45,14 @@ void	*large_malloc(size_t size)
 		return NULL;
 	
 	zone->type = LARGE;
-	zone->size = size;
+	zone->size = real_size;
 	zone->next = NULL;
 	
 	zone->blocks = GET_BLOCKS_FROM_ZONE(zone);
 	zone->blocks->free = false;
 	zone->blocks->size = size;
 	zone->blocks->next = NULL;
+	zone->blocks->prev = NULL;
 	
 	add_zone_to_allocator(&g_allocator.large, zone);
     return GET_BLOCK_PTR_FROM_BLOCKS(zone->blocks);
@@ -61,7 +62,7 @@ t_zone	*create_small_zone(t_zone_type type, size_t size)
 {
 	t_zone	*zone;
 
-	size_t	real_size = size + sizeof(t_zone) + (100 * sizeof(t_block));
+	size_t	real_size = size + sizeof(t_zone) + (MIN_BLOCK_COUNT * sizeof(t_block));
 	real_size = ALIGN_TO(real_size, GET_PAGE_SIZE);
 
 	zone = mmap(NULL, real_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -70,14 +71,54 @@ t_zone	*create_small_zone(t_zone_type type, size_t size)
 
 	zone->type = type;
 	zone->size = real_size;
+	zone->used_size = 0;
 	zone->next = NULL;
 
 	zone->blocks = GET_BLOCKS_FROM_ZONE(zone);
 	zone->blocks->free = false;
 	zone->blocks->size = size;
 	zone->blocks->next = NULL;
+	zone->blocks->prev = NULL;
+
+	zone->used_size += size + sizeof(t_block);
 
 	return zone;
+}
+
+/*
+Trouver une zone avec assez d'espace pour mettre un nouveau block
+	-Iterer dans toutes les zone pour savoir si
+	la taille de la zone - la taille du block est superieur a 0
+	
+	-Iterer dans tout les blocks pour voir si il y'a un block non utiliser avec
+	au minimum la taille du nouveau block que l'on souhaite
+		-si elle est plus grande decoupe le block:
+			taille du block entier - (taille demander - taille du block) 
+
+*/
+
+bool	check_zone_has_space(t_zone *zone, size_t total_block_size)
+{
+	if (zone->used_size + total_block_size > zone->size)
+		return false;
+	
+	t_block	*blocks = zone->blocks;
+	if (!blocks)
+		return total_block_size < zone->size - sizeof(t_zone);
+	
+	for (; blocks; blocks = blocks->next) {
+		if (blocks->free && blocks->size >= total_block_size)
+			return true;
+	}
+	return false;
+}
+
+void	*insert_block_in_zone(t_zone *zone, size_t total_block_size)
+{
+	//TODO
+	(void)zone;
+	(void)total_block_size;
+	return NULL;
 }
 
 void	*small_malloc(t_zone **global_zone, size_t size)
@@ -90,13 +131,22 @@ void	*small_malloc(t_zone **global_zone, size_t size)
 	else
 		type = SMALL;
 
-	if (!*global_zone) {
+	size_t	total_block_size = size + sizeof(t_block);
+	zone = *global_zone;
+	for (; zone; zone = zone->next) {
+		if (check_zone_has_space(zone, total_block_size) == true)
+			break;
+	}
+
+	if (!zone) {
 		zone = create_small_zone(type, size);
 		if (!zone)
 			return NULL;
 		add_zone_to_allocator(global_zone, zone);
 		return GET_BLOCK_PTR_FROM_BLOCKS(zone->blocks);
 	}
+
+	void	*ptr = insert_block_in_zone(zone, total_block_size);
 
 	return NULL;
 }

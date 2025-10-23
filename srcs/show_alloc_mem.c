@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/23 10:26:11 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/23 13:30:53 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,10 @@ void	print_zone_info(t_zone *zone)
 			ft_putnbr(blocks->size);
 			ft_putstr(" bytes\n");
 		}
+		ft_putstr("Zone size: ");
+		ft_putnbr(current->size);
+		ft_putstr(" bytes\n");
+		ft_putstr("\n");
 	}
 }
 
