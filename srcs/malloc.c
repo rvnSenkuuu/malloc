@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/23 15:55:10 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/28 09:55:36 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,16 +115,42 @@ bool	check_zone_has_space(t_zone *zone, size_t total_block_size)
 
 void	*insert_block_in_zone(t_zone *zone, size_t total_block_size)
 {
-	//TODO
-	(void)zone;
-	(void)total_block_size;
-	return NULL;
+	t_block	*blocks = zone->blocks;
+	for (; blocks; blocks = blocks->next) {
+		if (blocks->free == true && blocks->size >= total_block_size) {
+			blocks->free = false;
+			return GET_BLOCK_PTR_FROM_BLOCKS(blocks);
+		}
+	}
+
+	void	*new_block_addr = (char *)zone + zone->used_size;
+	t_block	*new_block = (t_block *)new_block_addr;
+
+	new_block->free = false;
+	new_block->size = total_block_size;
+	new_block->next = NULL;
+	if (blocks)
+		new_block->prev = blocks;
+
+	if (!zone->blocks)
+		zone->blocks = new_block;
+	else {
+		t_block	*last = zone->blocks;
+		while (last->next)
+			last = last->next;
+		last->next = new_block;
+	}
+
+	zone->used_size += total_block_size;
+
+	return GET_BLOCK_PTR_FROM_BLOCKS(new_block);
 }
 
 void	*small_malloc(t_zone **global_zone, size_t size)
 {
 	t_zone_type	type;
 	t_zone	*zone;
+	void	*ptr;
 
 	if (size <= TINY_BLOCK_SIZE)
 		type = TINY;
@@ -146,9 +172,9 @@ void	*small_malloc(t_zone **global_zone, size_t size)
 		return GET_BLOCK_PTR_FROM_BLOCKS(zone->blocks);
 	}
 
-	void	*ptr = insert_block_in_zone(zone, total_block_size);
+	ptr = insert_block_in_zone(zone, total_block_size);
 
-	return NULL;
+	return ptr;
 }
 
 void	*malloc(size_t size)
