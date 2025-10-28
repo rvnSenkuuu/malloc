@@ -7,27 +7,28 @@
 	#include <stdlib.h>
 #endif
 
-void	*test_ptr_allocation(void *ptr, size_t size)
+void	*test_ptr_allocation(size_t size)
 {
-	ptr = malloc(size);
+	void *ptr = malloc(size);
 	if (!ptr)
 		return NULL;
+
+	unsigned char *addr = ptr;
 	for (size_t i = 0; i < size / sizeof(*ptr); i++)
-		*(char *)(ptr + i) = i;
+		addr[i] = i;
 
 	return ptr;
 }
 
 int	main(void)
 {
-	char	*ptr = NULL;
-	int	*ptr2 = NULL;
-	int	*ptr3 = NULL;
-	int	*ptr4 = NULL;
-	test_ptr_allocation(ptr, 100);
-	test_ptr_allocation(ptr2, 10);
-	test_ptr_allocation(ptr3, 10);
-	test_ptr_allocation(ptr4, 1024);
+	int	*ptr2 = test_ptr_allocation(10);
+	int	*ptr3 = test_ptr_allocation(10);
+	int	*ptr4 = test_ptr_allocation(10);
+
+	(void)ptr2;
+	(void)ptr3;
+	(void)ptr4;
 
 	show_alloc_mem();
 	// free(ptr);

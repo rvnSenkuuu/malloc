@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/23 14:54:28 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/28 11:49:48 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,5 +64,8 @@ typedef struct __attribute__((aligned(ALIGNMENT))) s_allocator {
 } t_allocator;
 
 extern t_allocator	g_allocator;
+
+t_zone	*create_small_zone(t_zone_type type, size_t size);
+void	*insert_block_in_zone(t_zone *zone, size_t total_block_size);
 
 #endif

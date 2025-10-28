@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/23 13:30:53 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/28 12:03:42 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ void	print_zone_info(t_zone *zone)
 }
 
 void	show_alloc_mem(void)
-{
+{	
 	if (g_allocator.tiny)
 		print_zone_info(g_allocator.tiny);
 	if (g_allocator.small)

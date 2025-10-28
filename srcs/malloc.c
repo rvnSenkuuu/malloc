@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/28 09:55:36 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/28 12:00:41 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,16 +71,14 @@ t_zone	*create_small_zone(t_zone_type type, size_t size)
 
 	zone->type = type;
 	zone->size = real_size;
-	zone->used_size = 0;
+	zone->used_size = sizeof(t_block) + sizeof(t_zone);
 	zone->next = NULL;
 
 	zone->blocks = GET_BLOCKS_FROM_ZONE(zone);
-	zone->blocks->free = false;
-	zone->blocks->size = size;
+	zone->blocks->size = real_size - sizeof(t_zone) - sizeof(t_block);
+	zone->blocks->free = true;
 	zone->blocks->next = NULL;
 	zone->blocks->prev = NULL;
-
-	zone->used_size += size + sizeof(t_block);
 
 	return zone;
 }
@@ -110,35 +108,72 @@ bool	check_zone_has_space(t_zone *zone, size_t total_block_size)
 		if (blocks->free && blocks->size >= total_block_size)
 			return true;
 	}
+
+	t_block	*last = zone->blocks;
+	while (last->next)
+		last = last->next;
+
+	size_t	offset = (char *)last + sizeof(t_block) + last->size - (char *)zone;
+	if (offset + total_block_size <= zone->size)
+		return true;
+
 	return false;
 }
 
-void	*insert_block_in_zone(t_zone *zone, size_t total_block_size)
+void	split_block(t_block *block, size_t size)
 {
+	size_t	block_current_size = block->size;
+	t_block	*next_block = block->next;
+	
+	block->size = size;
+	void	*new_block_addr = (char *)block + sizeof(t_block) + size;
+	t_block	*new_block = (t_block *)new_block_addr;
+
+	new_block->size = block_current_size - size - sizeof(t_block);
+	new_block->free = true;
+	new_block->next = next_block;
+
+	if (next_block)
+		next_block->prev = new_block;
+	new_block->prev = block;
+	block->next = new_block;
+}
+
+void	*insert_block_in_zone(t_zone *zone, size_t size)
+{
+	size_t	total_block_size = size + sizeof(t_block);
+
 	t_block	*blocks = zone->blocks;
 	for (; blocks; blocks = blocks->next) {
-		if (blocks->free == true && blocks->size >= total_block_size) {
+		if (blocks->free == true && blocks->size >= size) {
+			size_t	remaining_size = blocks->size - size;
+			size_t	min_block_size = sizeof(t_block) + ALIGNMENT;
+			if (remaining_size >= min_block_size)
+				split_block(blocks, size);
 			blocks->free = false;
 			return GET_BLOCK_PTR_FROM_BLOCKS(blocks);
 		}
 	}
 
+	if (zone->used_size + total_block_size > zone->size)
+		return NULL;
+
 	void	*new_block_addr = (char *)zone + zone->used_size;
 	t_block	*new_block = (t_block *)new_block_addr;
 
+	new_block->size = size;
 	new_block->free = false;
-	new_block->size = total_block_size;
 	new_block->next = NULL;
-	if (blocks)
-		new_block->prev = blocks;
 
-	if (!zone->blocks)
+	if (!zone->blocks) {
 		zone->blocks = new_block;
-	else {
+		new_block->prev = NULL;
+	} else {
 		t_block	*last = zone->blocks;
 		while (last->next)
 			last = last->next;
 		last->next = new_block;
+		new_block->prev = last;
 	}
 
 	zone->used_size += total_block_size;
@@ -172,7 +207,7 @@ void	*small_malloc(t_zone **global_zone, size_t size)
 		return GET_BLOCK_PTR_FROM_BLOCKS(zone->blocks);
 	}
 
-	ptr = insert_block_in_zone(zone, total_block_size);
+	ptr = insert_block_in_zone(zone, size);
 
 	return ptr;
 }
