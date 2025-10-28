@@ -22,15 +22,14 @@ void	*test_ptr_allocation(size_t size)
 
 int	main(void)
 {
-	int	*ptr2 = test_ptr_allocation(25);
-	int	*ptr3 = test_ptr_allocation(15);
-	int	*ptr4 = test_ptr_allocation(5);
+	int	*ptr2 = test_ptr_allocation(50);
+	int	*ptr3 = test_ptr_allocation(10);
 
 	(void)ptr2;
 	(void)ptr3;
-	(void)ptr4;
 
 	show_alloc_mem();
 	free(ptr2);
+	free(ptr3);
 	return 0;
 }

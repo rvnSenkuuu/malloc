@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/28 15:41:52 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/28 18:11:05 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,8 @@
 #define GET_PAGE_SIZE sysconf(_SC_PAGE_SIZE)
 
 #define GET_BLOCKS_FROM_ZONE(zone) ((t_block *)((char *)zone + sizeof(t_zone)))
-#define GET_BLOCK_PTR_FROM_BLOCKS(blocks) ((void *)((char *)blocks + sizeof(t_block)))
+#define GET_PTR_FROM_BLOCKS(blocks) ((void *)((char *)blocks + sizeof(t_block)))
+#define GET_BLOCKS_FROM_PTR(ptr) ((t_block *)((char *)ptr - sizeof(t_block)))
 
 typedef enum {
 	TINY,
@@ -64,5 +65,8 @@ typedef struct __attribute__((aligned(ALIGNMENT))) s_allocator {
 } t_allocator;
 
 extern t_allocator	g_allocator;
+
+void	free(void *ptr);
+void	*malloc(size_t size);
 
 #endif

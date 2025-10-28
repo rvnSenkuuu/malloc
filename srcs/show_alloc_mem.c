@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/28 15:41:47 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/28 18:22:45 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,6 @@ void	print_zone_info(t_zone *zone)
 		ft_putstr("\n");
 	}
 }
-
 
 void	show_alloc_mem(void)
 {

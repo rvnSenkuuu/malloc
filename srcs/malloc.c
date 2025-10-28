@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/28 15:35:03 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/28 18:22:14 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void	*large_malloc(size_t size)
 	zone->blocks->prev = NULL;
 	
 	add_zone_to_allocator(&g_allocator.large, zone);
-    return GET_BLOCK_PTR_FROM_BLOCKS(zone->blocks);
+    return GET_PTR_FROM_BLOCKS(zone->blocks);
 }
 
 t_zone	*create_small_zone(t_zone_type type, size_t size)
@@ -154,7 +154,7 @@ void	*insert_block_in_zone(t_zone *zone, size_t size)
 			if (remaining_size >= min_block_size)
 				split_block(blocks, size);
 			blocks->free = false;
-			return GET_BLOCK_PTR_FROM_BLOCKS(blocks);
+			return GET_PTR_FROM_BLOCKS(blocks);
 		}
 	}
 
@@ -178,7 +178,7 @@ void	*insert_block_in_zone(t_zone *zone, size_t size)
 
 	zone->used_size += total_block_size;
 
-	return GET_BLOCK_PTR_FROM_BLOCKS(new_block);
+	return GET_PTR_FROM_BLOCKS(new_block);
 }
 
 void	*small_malloc(t_zone **global_zone, size_t size)
@@ -204,7 +204,7 @@ void	*small_malloc(t_zone **global_zone, size_t size)
 		if (!zone)
 			return NULL;
 		add_zone_to_allocator(global_zone, zone);
-		return GET_BLOCK_PTR_FROM_BLOCKS(zone->blocks);
+		return GET_PTR_FROM_BLOCKS(zone->blocks);
 	}
 
 	ptr = insert_block_in_zone(zone, size);
@@ -239,7 +239,7 @@ bool	search_ptr_in_zone(t_zone *allocator_zone, void *ptr)
 	for (; zone; zone = zone->next) {
 		blocks = zone->blocks;
 		for (; blocks; blocks = blocks->next) {
-			if (ptr >= GET_BLOCK_PTR_FROM_BLOCKS(blocks) && ptr < (void *)zone + zone->size)
+			if (ptr >= GET_PTR_FROM_BLOCKS(blocks) && ptr < (void *)zone + zone->size)
 				return true;
 		}
 	}
@@ -258,6 +258,13 @@ void	free(void *ptr)
 			write(STDERR_FILENO, "Invalid pointer\n", 17);
 			return;
 		}
+
+	t_block	*block = GET_BLOCKS_FROM_PTR(ptr);
+
+	if (block->free == true) {
+		write(STDERR_FILENO, "Double free\n", 13);
+		return;
+	}
 }
 
 void	*realloc(void *ptr, size_t size)
