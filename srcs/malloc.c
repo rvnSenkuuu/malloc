@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/28 12:00:41 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/28 15:35:03 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,6 +143,9 @@ void	*insert_block_in_zone(t_zone *zone, size_t size)
 {
 	size_t	total_block_size = size + sizeof(t_block);
 
+	if (zone->used_size + total_block_size > zone->size)
+		return NULL;
+	
 	t_block	*blocks = zone->blocks;
 	for (; blocks; blocks = blocks->next) {
 		if (blocks->free == true && blocks->size >= size) {
@@ -154,9 +157,6 @@ void	*insert_block_in_zone(t_zone *zone, size_t size)
 			return GET_BLOCK_PTR_FROM_BLOCKS(blocks);
 		}
 	}
-
-	if (zone->used_size + total_block_size > zone->size)
-		return NULL;
 
 	void	*new_block_addr = (char *)zone + zone->used_size;
 	t_block	*new_block = (t_block *)new_block_addr;
@@ -229,9 +229,35 @@ void	*malloc(size_t size)
 	return ptr;
 }
 
+bool	search_ptr_in_zone(t_zone *allocator_zone, void *ptr)
+{
+	t_zone	*zone;
+	t_block	*blocks;
+
+
+	zone = allocator_zone;
+	for (; zone; zone = zone->next) {
+		blocks = zone->blocks;
+		for (; blocks; blocks = blocks->next) {
+			if (ptr >= GET_BLOCK_PTR_FROM_BLOCKS(blocks) && ptr < (void *)zone + zone->size)
+				return true;
+		}
+	}
+
+	return false;
+}
+
 void	free(void *ptr)
 {
-	(void)ptr;
+	if (!ptr)
+		return;
+
+	if (!search_ptr_in_zone(g_allocator.tiny, ptr)
+		&& !search_ptr_in_zone(g_allocator.small, ptr) 
+		&& !search_ptr_in_zone(g_allocator.large, ptr)) {
+			write(STDERR_FILENO, "Invalid pointer\n", 17);
+			return;
+		}
 }
 
 void	*realloc(void *ptr, size_t size)
