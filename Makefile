@@ -6,12 +6,13 @@
 #    By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/08 15:06:11 by tkara2            #+#    #+#              #
-#    Updated: 2025/10/20 18:22:24 by tkara2           ###   ########.fr        #
+#    Updated: 2025/10/29 17:37:34 by tkara2           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = libft_malloc.so
 SRCS = srcs/malloc.c \
+       srcs/zone_block_utils.c \
        srcs/show_alloc_mem.c
 
 INCS = incs/malloc_internal.h \
