@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/29 13:15:27 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/29 16:15:50 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -241,6 +241,27 @@ bool	search_ptr_in_zone(t_zone *allocator_zone, void *ptr)
 	return false;
 }
 
+void	merge_block(t_block *block)
+{
+	if (block->next && block->next->free) {
+		t_block	*next_block = block->next;
+
+		block->size += sizeof(t_block) + next_block->size;
+		block->next = next_block->next;
+		if (next_block->next)
+			next_block->next->prev = block;
+	}
+
+	if (block->prev && block->prev->free) {
+		t_block	*prev_block = block->prev;
+
+		prev_block->size += sizeof(t_block) + block->size;
+		prev_block->next = block->next;
+		if (block->next)
+			block->next->prev = prev_block;
+	}
+}
+
 void	free(void *ptr)
 {
 	if (!ptr)
@@ -260,6 +281,44 @@ void	free(void *ptr)
 		return;
 	}
 	block->free = true;
+	merge_block(block);
+}
+
+__attribute__((destructor))
+void	destroy_zone(void)
+{
+	t_zone	*zone;
+	t_zone	*next_zone;
+
+	if (g_allocator.tiny) {
+		zone = g_allocator.tiny;
+		while (zone) {
+			next_zone = zone->next;
+			munmap(zone, zone->size);
+			zone = next_zone;
+		}
+	}
+	g_allocator.tiny = NULL;
+
+	if (g_allocator.small) {
+		zone = g_allocator.small;
+		while (zone) {
+			next_zone = zone->next;
+			munmap(zone, zone->size);
+			zone = next_zone;
+		}
+	}
+	g_allocator.small = NULL;
+
+	if (g_allocator.large) {
+		zone = g_allocator.large;
+		while (zone) {
+			next_zone = zone->next;
+			munmap(zone, zone->size);
+			zone = next_zone;
+		}
+	}
+	g_allocator.large = NULL;
 }
 
 void	*realloc(void *ptr, size_t size)
