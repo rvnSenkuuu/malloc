@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/28 18:22:14 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/29 13:15:27 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,14 +71,9 @@ t_zone	*create_small_zone(t_zone_type type, size_t size)
 
 	zone->type = type;
 	zone->size = real_size;
-	zone->used_size = sizeof(t_block) + sizeof(t_zone);
+	zone->used_size = sizeof(t_zone);
 	zone->next = NULL;
-
-	zone->blocks = GET_BLOCKS_FROM_ZONE(zone);
-	zone->blocks->size = real_size - sizeof(t_zone) - sizeof(t_block);
-	zone->blocks->free = true;
-	zone->blocks->next = NULL;
-	zone->blocks->prev = NULL;
+	zone->blocks = NULL;
 
 	return zone;
 }
@@ -158,7 +153,7 @@ void	*insert_block_in_zone(t_zone *zone, size_t size)
 		}
 	}
 
-	void	*new_block_addr = (char *)zone + zone->used_size;
+	void	*new_block_addr = (char *)zone + sizeof(t_zone) + zone->used_size;
 	t_block	*new_block = (t_block *)new_block_addr;
 
 	new_block->size = size;
@@ -204,7 +199,6 @@ void	*small_malloc(t_zone **global_zone, size_t size)
 		if (!zone)
 			return NULL;
 		add_zone_to_allocator(global_zone, zone);
-		return GET_PTR_FROM_BLOCKS(zone->blocks);
 	}
 
 	ptr = insert_block_in_zone(zone, size);
@@ -265,6 +259,7 @@ void	free(void *ptr)
 		write(STDERR_FILENO, "Double free\n", 13);
 		return;
 	}
+	block->free = true;
 }
 
 void	*realloc(void *ptr, size_t size)

@@ -22,14 +22,16 @@ void	*test_ptr_allocation(size_t size)
 
 int	main(void)
 {
-	int	*ptr2 = test_ptr_allocation(50);
-	int	*ptr3 = test_ptr_allocation(10);
+	__attribute__((unused))int	*ptr2 = test_ptr_allocation(50);
+	__attribute__((unused))int	*ptr3 = test_ptr_allocation(10);
+	__attribute__((unused))int	*ptr4 = test_ptr_allocation(25);
 
-	(void)ptr2;
-	(void)ptr3;
-
+	write(1, "===Before free===\n", 19);
 	show_alloc_mem();
 	free(ptr2);
 	free(ptr3);
+	free(ptr4);
+	write(1, "===After free===\n", 18);
+	show_alloc_mem();
 	return 0;
 }

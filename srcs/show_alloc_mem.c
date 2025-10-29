@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/28 18:22:45 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/29 12:52:27 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,10 @@ void	print_zone_info(t_zone *zone)
 	ft_puthex((size_t)zone);
 	ft_putstr("\n");
 
+	size_t total_bytes = 0;
 	for (t_zone *current = zone; current; current = current->next) {
 		for (t_block *blocks = current->blocks; blocks; blocks = blocks->next) {
+			total_bytes += blocks->size;
 			ft_putstr("0x");
 			ft_puthex((size_t)blocks);
 			ft_putstr(" - ");
@@ -79,9 +81,10 @@ void	print_zone_info(t_zone *zone)
 			ft_putstr(" : ");
 			ft_putnbr(blocks->size);
 			ft_putstr(" bytes\n");
+			blocks->free ? ft_putstr("Block is free\n") : ft_putstr("Block is not free\n");
 		}
-		ft_putstr("Zone size: ");
-		ft_putnbr(current->size);
+		ft_putstr("Total bytes: ");
+		ft_putnbr(total_bytes);
 		ft_putstr(" bytes\n");
 		ft_putstr("\n");
 	}
