@@ -30,12 +30,19 @@ int	main(void)
 
 	write(1, "===Before free===\n", 19);
 	show_alloc_mem();
-	// free(ptr1);
+	free(ptr1);
 	free(ptr2);
 	free(ptr3);
 	free(ptr4);
-	// free(ptr5);
+	free(ptr5);
 	write(1, "===After free===\n", 18);
 	show_alloc_mem();
+
+	__attribute__((unused))int	*ptr6 = test_ptr_allocation(35);
+	write(1, "===After===\n", 13);
+	show_alloc_mem();
+
+	free(ptr6);
+	
 	return 0;
 }

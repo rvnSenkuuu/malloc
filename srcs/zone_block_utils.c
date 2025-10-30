@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/29 17:34:07 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/30 10:36:54 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/30 13:14:33 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ bool	check_zone_has_space(t_zone *zone, size_t total_block_size)
 	while (last->next)
 		last = last->next;
 
-	size_t	offset = (char *)last + sizeof(t_block) + last->size - (char *)zone;
+	size_t	offset = (uintptr_t)last + sizeof(t_block) + last->size - (uintptr_t)zone;
 	if (offset + total_block_size <= zone->size)
 		return true;
 
@@ -78,14 +78,16 @@ bool	check_zone_has_space(t_zone *zone, size_t total_block_size)
 
 void	split_block(t_block *block, size_t size)
 {
+	size_t	aligned_size = ALIGN_TO(size, ALIGNMENT);
 	size_t	block_current_size = block->size;
 	t_block	*next_block = block->next;
 	
-	block->size = size;
-	void	*new_block_addr = (char *)block + sizeof(t_block) + size;
+	block->size = aligned_size;
+	uintptr_t	new_block_addr = (uintptr_t)block + sizeof(t_block) + size;
+	new_block_addr = ALIGN_TO(new_block_addr, ALIGNMENT);
 	t_block	*new_block = (t_block *)new_block_addr;
 
-	new_block->size = block_current_size - size - sizeof(t_block);
+	new_block->size = block_current_size - aligned_size - sizeof(t_block);
 	new_block->free = true;
 	new_block->next = next_block;
 
@@ -98,7 +100,6 @@ void	split_block(t_block *block, size_t size)
 void	*insert_block_in_zone(t_zone *zone, size_t size)
 {
 	size_t	total_block_size = size + sizeof(t_block);
-	// total_block_size = ALIGN_TO(total_block_size, ALIGNMENT);
 
 	if (zone->used_size + total_block_size > zone->size)
 		return NULL;
@@ -115,7 +116,8 @@ void	*insert_block_in_zone(t_zone *zone, size_t size)
 		}
 	}
 
-	void	*new_block_addr = (char *)zone + sizeof(t_zone) + zone->used_size;
+	uintptr_t	new_block_addr = (uintptr_t)zone + sizeof(t_zone) + zone->used_size;
+	new_block_addr = ALIGN_TO(new_block_addr, ALIGNMENT);
 	t_block	*new_block = (t_block *)new_block_addr;
 
 	new_block->size = size;
@@ -182,33 +184,15 @@ void	destroy_zone(void)
 	t_zone	*zone;
 	t_zone	*next_zone;
 
-	if (g_allocator.tiny) {
-		zone = g_allocator.tiny;
-		while (zone) {
-			next_zone = zone->next;
-			munmap(zone, zone->size);
-			zone = next_zone;
-		}
-	}
+	if (g_allocator.tiny)
+		MUNMAP_ZONES (g_allocator.tiny)
 	g_allocator.tiny = NULL;
 
-	if (g_allocator.small) {
-		zone = g_allocator.small;
-		while (zone) {
-			next_zone = zone->next;
-			munmap(zone, zone->size);
-			zone = next_zone;
-		}
-	}
+	if (g_allocator.small)
+		MUNMAP_ZONES (g_allocator.small)
 	g_allocator.small = NULL;
-
-	if (g_allocator.large) {
-		zone = g_allocator.large;
-		while (zone) {
-			next_zone = zone->next;
-			munmap(zone, zone->size);
-			zone = next_zone;
-		}
-	}
+	
+	if (g_allocator.large)
+		MUNMAP_ZONES (g_allocator.large)
 	g_allocator.large = NULL;
 }

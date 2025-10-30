@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/30 10:34:25 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/30 13:16:03 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -33,9 +34,18 @@
 
 #define GET_PAGE_SIZE sysconf(_SC_PAGE_SIZE)
 
-#define GET_BLOCKS_FROM_ZONE(zone) ((t_block *)((char *)zone + sizeof(t_zone)))
-#define GET_PTR_FROM_BLOCKS(blocks) ((void *)((char *)blocks + sizeof(t_block)))
-#define GET_BLOCKS_FROM_PTR(ptr) ((t_block *)((char *)ptr - sizeof(t_block)))
+#define GET_BLOCKS_FROM_ZONE(zone) ((t_block *)((uintptr_t)zone + sizeof(t_zone)))
+#define GET_PTR_FROM_BLOCKS(blocks) ((void *)((uintptr_t)blocks + sizeof(t_block)))
+#define GET_BLOCKS_FROM_PTR(ptr) ((t_block *)((uintptr_t)ptr - sizeof(t_block)))
+
+#define MUNMAP_ZONES(zones) do {      \
+		zone = zones;                 \
+		while (zone) {                \
+			next_zone = zone->next;   \
+			munmap(zone, zone->size); \
+			zone = next_zone;         \
+		}                             \
+} while (0);
 
 typedef enum {
 	TINY,
