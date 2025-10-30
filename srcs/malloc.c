@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/29 17:37:03 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/30 10:34:31 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void	*small_malloc(t_zone **global_zone, size_t size)
 	}
 
 	if (!zone) {
-		zone = create_small_zone(type, size);
+		zone = create_small_zone(type);
 		if (!zone)
 			return NULL;
 		add_zone_to_allocator(global_zone, zone);

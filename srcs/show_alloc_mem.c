@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/29 12:52:27 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/30 10:21:29 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,9 @@ void	print_zone_info(t_zone *zone)
 			ft_putstr(" bytes\n");
 			blocks->free ? ft_putstr("Block is free\n") : ft_putstr("Block is not free\n");
 		}
+		ft_putstr("Zone size: ");
+		ft_putnbr(zone->size);
+		ft_putstr(" Bytes\n");
 		ft_putstr("Total bytes: ");
 		ft_putnbr(total_bytes);
 		ft_putstr(" bytes\n");

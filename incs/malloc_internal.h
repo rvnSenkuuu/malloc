@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/29 17:38:45 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/30 10:34:25 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,6 @@ void	merge_block(t_block *block);
 bool	check_zone_has_space(t_zone *zone, size_t total_block_size);
 bool	search_ptr_in_zone(t_zone *allocator_zone, void *ptr);
 void	*insert_block_in_zone(t_zone *zone, size_t size);
-t_zone	*create_small_zone(t_zone_type type, size_t size);
+t_zone	*create_small_zone(t_zone_type type);
 
 #endif

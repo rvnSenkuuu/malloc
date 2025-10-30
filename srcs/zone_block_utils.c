@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/29 17:34:07 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/29 17:36:57 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/30 10:36:54 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,19 +27,23 @@ void	add_zone_to_allocator(t_zone **allocator_zone, t_zone *zone)
 	zone->next = NULL;
 }
 
-t_zone	*create_small_zone(t_zone_type type, size_t size)
+t_zone	*create_small_zone(t_zone_type type)
 {
+	size_t	zone_size = 0;
 	t_zone	*zone;
 
-	size_t	real_size = size + sizeof(t_zone) + (MIN_BLOCK_COUNT * sizeof(t_block));
-	real_size = ALIGN_TO(real_size, GET_PAGE_SIZE);
+	if (type == TINY)
+		zone_size = sizeof(t_zone) + (ALIGN_TO(TINY_BLOCK_SIZE + sizeof(t_block), ALIGNMENT)) * MIN_BLOCK_COUNT;
+	else
+		zone_size = sizeof(t_zone) + (ALIGN_TO(SMALL_BLOCK_SIZE + sizeof(t_block), ALIGNMENT)) * MIN_BLOCK_COUNT;
+	zone_size = ALIGN_TO(zone_size, GET_PAGE_SIZE);
 
-	zone = mmap(NULL, real_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	zone = mmap(NULL, zone_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (zone == MAP_FAILED)
 		return NULL;
 
 	zone->type = type;
-	zone->size = real_size;
+	zone->size = zone_size;
 	zone->used_size = sizeof(t_zone);
 	zone->next = NULL;
 	zone->blocks = NULL;
@@ -94,6 +98,7 @@ void	split_block(t_block *block, size_t size)
 void	*insert_block_in_zone(t_zone *zone, size_t size)
 {
 	size_t	total_block_size = size + sizeof(t_block);
+	// total_block_size = ALIGN_TO(total_block_size, ALIGNMENT);
 
 	if (zone->used_size + total_block_size > zone->size)
 		return NULL;
@@ -138,7 +143,7 @@ void	merge_block(t_block *block)
 	if (block->next && block->next->free) {
 		t_block	*next_block = block->next;
 
-		block->size += sizeof(t_block) + next_block->size;
+		block->size += next_block->size;
 		block->next = next_block->next;
 		if (next_block->next)
 			next_block->next->prev = block;
@@ -147,7 +152,7 @@ void	merge_block(t_block *block)
 	if (block->prev && block->prev->free) {
 		t_block	*prev_block = block->prev;
 
-		prev_block->size += sizeof(t_block) + block->size;
+		prev_block->size += block->size;
 		prev_block->next = block->next;
 		if (block->next)
 			block->next->prev = prev_block;
@@ -158,7 +163,6 @@ bool	search_ptr_in_zone(t_zone *allocator_zone, void *ptr)
 {
 	t_zone	*zone;
 	t_block	*blocks;
-
 
 	zone = allocator_zone;
 	for (; zone; zone = zone->next) {
