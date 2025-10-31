@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/31 14:29:21 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/31 15:38:50 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,9 +122,33 @@ void	free(void *ptr)
 	pthread_mutex_unlock(&mutex);
 }
 
+void	ft_memcpy(void *d, const void *s, size_t n)
+{
+	unsigned char	*src = (unsigned char *)s;
+	unsigned char	*dest = d;
+
+	for (; src && n--; src++)
+		*dest++ = *src++;
+}
+
 void	*realloc(void *ptr, size_t size)
 {
-	(void)ptr;
-	(void)size;
-	return NULL;
+	void	*new_ptr = NULL;
+
+	if (!ptr)
+		new_ptr = malloc(size);
+
+	if (size == 0 && ptr)
+		free(ptr);
+
+	t_block	*block = GET_BLOCKS_FROM_PTR(ptr);
+
+	if (block->size < size)
+		new_ptr = malloc(size);
+
+	if (new_ptr)
+		ft_memcpy(new_ptr, ptr, size);
+
+	free(ptr);
+	return new_ptr;
 }
