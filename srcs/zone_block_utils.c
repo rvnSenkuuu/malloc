@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/29 17:34:07 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/31 12:14:20 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/31 18:48:19 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ t_zone	*create_small_zone(t_zone_type type)
 		zone_size = sizeof(t_zone) + (ALIGN_TO(SMALL_BLOCK_SIZE + sizeof(t_block), ALIGNMENT)) * MIN_BLOCK_COUNT;
 	zone_size = ALIGN_TO(zone_size, GET_PAGE_SIZE);
 
-	zone = mmap(NULL, zone_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	zone = mmap(NULL, zone_size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
 	if (zone == MAP_FAILED)
 		return NULL;
 
@@ -141,25 +141,33 @@ void	*insert_block_in_zone(t_zone *zone, size_t size)
 	return GET_PTR_FROM_BLOCKS(new_block);
 }
 
+void	merge_with_next(t_block *block)
+{
+	t_block	*next_block = block->next;
+
+	block->size += next_block->size + sizeof(t_block);
+	block->next = next_block->next;
+	if (next_block->next)
+		next_block->next->prev = block;
+}
+
+void	merge_with_prev(t_block *block)
+{
+	t_block	*prev_block = block->prev;
+
+	prev_block->size += block->size + sizeof(t_block);
+	prev_block->next = block->next;
+	if (block->next)
+		block->next->prev = prev_block;	
+}
+
 void	merge_block(t_block *block)
 {
-	if (block->next && block->next->free) {
-		t_block	*next_block = block->next;
+	if (block->next && block->next->free)
+		merge_with_next(block);
 
-		block->size += next_block->size;
-		block->next = next_block->next;
-		if (next_block->next)
-			next_block->next->prev = block;
-	}
-
-	if (block->prev && block->prev->free) {
-		t_block	*prev_block = block->prev;
-
-		prev_block->size += block->size + sizeof(t_block);
-		prev_block->next = block->next;
-		if (block->next)
-			block->next->prev = prev_block;
-	}
+	if (block->prev && block->prev->free)
+		merge_with_prev(block);
 }
 
 bool	search_ptr_in_zone(t_zone *allocator_zone, void *ptr)
@@ -172,6 +180,24 @@ bool	search_ptr_in_zone(t_zone *allocator_zone, void *ptr)
 	}
 
 	return false;
+}
+
+void	ft_memcpy(void *d, const void *s, size_t n)
+{
+	unsigned char	*src = (unsigned char *)s;
+	unsigned char	*dest = d;
+
+	while (n--)
+		*dest++ = *src++;
+}
+
+__attribute__((constructor))
+void	init_malloc(void)
+{
+	pthread_mutexattr_t	attr;
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(&mutex, &attr);
 }
 
 __attribute__((destructor))

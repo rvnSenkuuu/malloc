@@ -6,12 +6,14 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/31 11:56:58 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/31 18:48:38 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MALLOC_INTERNAL_H
 #define MALLOC_INTERNAL_H
+
+#define _GNU_SOURCE
 
 #include <assert.h>
 #include <unistd.h>
@@ -21,10 +23,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <pthread.h>
-
-#ifndef MAP_ANONYMOUS
-#define MAP_ANONYMOUS 0x20
-#endif
 
 #define ALIGNMENT 16
 #define ALIGN_TO(x, to_align) (((x) + (to_align) - 1) & ~((to_align) - 1))
@@ -76,13 +74,17 @@ typedef struct __attribute__((aligned(ALIGNMENT))) s_allocator {
 } t_allocator;
 
 extern t_allocator	g_allocator;
+extern pthread_mutex_t	mutex;
 
 void	free(void *ptr);
 void	*malloc(size_t size);
 
+void	ft_memcpy(void *d, const void *s, size_t n);
 void	add_zone_to_allocator(t_zone **allocator_zone, t_zone *zone);
 void	split_block(t_block *block, size_t size);
 void	merge_block(t_block *block);
+void	merge_with_next(t_block *block);
+void	merge_with_prev(t_block *block);
 bool	check_zone_has_space(t_zone *zone, size_t total_block_size);
 bool	search_ptr_in_zone(t_zone *allocator_zone, void *ptr);
 void	*insert_block_in_zone(t_zone *zone, size_t size);

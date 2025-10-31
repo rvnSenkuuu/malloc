@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/31 16:14:57 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/31 18:48:35 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,7 @@ t_allocator	g_allocator = {
 	.small = NULL,
 	.large = NULL,
 };
-
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t	mutex;
 
 void	*large_malloc(size_t size)
 {
@@ -27,7 +26,7 @@ void	*large_malloc(size_t size)
 	size_t	real_size = size + sizeof(t_zone) + sizeof(t_block);
 	real_size = ALIGN_TO(real_size, GET_PAGE_SIZE);
 
-	zone = mmap(NULL, real_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	zone = mmap(NULL, real_size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
 	if (zone == MAP_FAILED)
 		return NULL;
 	
@@ -92,7 +91,6 @@ void	*malloc(size_t size)
 		ptr = large_malloc(size);
 
 	pthread_mutex_unlock(&mutex);
-
 	return ptr;
 }
 
@@ -122,40 +120,66 @@ void	free(void *ptr)
 	pthread_mutex_unlock(&mutex);
 }
 
-void	ft_memcpy(void *d, const void *s, size_t n)
+void	*try_avoid_reallocating(t_block *block, size_t size)
 {
-	unsigned char	*src = (unsigned char *)s;
-	unsigned char	*dest = d;
+	size_t	merged_size;
 
-	for (; src && n--; src++)
-		*dest++ = *src++;
+	if (block->next && block->next->free) {
+		merged_size = block->size + sizeof(t_block) + block->next->size;
+		if (merged_size >= size) {
+			merge_with_next(block);
+			return GET_PTR_FROM_BLOCKS(block);
+		}
+	}
+
+	if (block->prev && block->prev->free) {
+		merged_size = block->size + sizeof(t_block) + block->prev->size;
+		if (merged_size >= size) {
+			merge_with_prev(block);
+			return GET_PTR_FROM_BLOCKS(block->prev);
+		}
+	}
+	return NULL;
 }
 
 void	*realloc(void *ptr, size_t size)
 {
 	void	*new_ptr = NULL;
 
+	pthread_mutex_lock(&mutex);
+
 	if (!ptr) {
 		new_ptr = malloc(size);
+		pthread_mutex_unlock(&mutex);
 		return new_ptr;
 	}
 
-	if (size == 0 && ptr) {
+	if (size == 0) {
 		free(ptr);
+		pthread_mutex_unlock(&mutex);
 		return new_ptr;
 	}
 
 	t_block	*block = GET_BLOCKS_FROM_PTR(ptr);
 
-	if (block->size >= size)
-		return ptr;
+	if (block->size < size) {
+		pthread_mutex_unlock(&mutex);
+		void	*merged_ptr = try_avoid_reallocating(block, size);
+		if (merged_ptr) {
+			pthread_mutex_unlock(&mutex);
+			return merged_ptr;
+		}
+	}
 
 	new_ptr = malloc(size);
-	if (!new_ptr)
+	if (!new_ptr) {
+		pthread_mutex_unlock(&mutex);
 		return ptr;
+	}
 
-	ft_memcpy(new_ptr, ptr, size);
+	ft_memcpy(new_ptr, ptr, block->size);
 	free(ptr);
 
+	pthread_mutex_unlock(&mutex);
 	return new_ptr;
 }
