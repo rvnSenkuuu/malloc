@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/30 13:16:03 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/31 11:56:58 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <pthread.h>
 
 #ifndef MAP_ANONYMOUS
 #define MAP_ANONYMOUS 0x20

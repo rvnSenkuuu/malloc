@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/29 17:34:07 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/30 13:14:33 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/31 12:14:20 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ bool	check_zone_has_space(t_zone *zone, size_t total_block_size)
 		last = last->next;
 
 	size_t	offset = (uintptr_t)last + sizeof(t_block) + last->size - (uintptr_t)zone;
+	offset = ALIGN_TO(offset, ALIGNMENT);
 	if (offset + total_block_size <= zone->size)
 		return true;
 
@@ -83,7 +84,7 @@ void	split_block(t_block *block, size_t size)
 	t_block	*next_block = block->next;
 	
 	block->size = aligned_size;
-	uintptr_t	new_block_addr = (uintptr_t)block + sizeof(t_block) + size;
+	uintptr_t	new_block_addr = (uintptr_t)block + sizeof(t_block) + aligned_size;
 	new_block_addr = ALIGN_TO(new_block_addr, ALIGNMENT);
 	t_block	*new_block = (t_block *)new_block_addr;
 
@@ -95,6 +96,7 @@ void	split_block(t_block *block, size_t size)
 		next_block->prev = new_block;
 	new_block->prev = block;
 	block->next = new_block;
+	block->free = false;
 }
 
 void	*insert_block_in_zone(t_zone *zone, size_t size)
@@ -111,7 +113,6 @@ void	*insert_block_in_zone(t_zone *zone, size_t size)
 			size_t	min_block_size = sizeof(t_block) + ALIGNMENT;
 			if (remaining_size >= min_block_size)
 				split_block(blocks, size);
-			blocks->free = false;
 			return GET_PTR_FROM_BLOCKS(blocks);
 		}
 	}
@@ -154,7 +155,7 @@ void	merge_block(t_block *block)
 	if (block->prev && block->prev->free) {
 		t_block	*prev_block = block->prev;
 
-		prev_block->size += block->size;
+		prev_block->size += block->size + sizeof(t_block);
 		prev_block->next = block->next;
 		if (block->next)
 			block->next->prev = prev_block;
@@ -163,16 +164,11 @@ void	merge_block(t_block *block)
 
 bool	search_ptr_in_zone(t_zone *allocator_zone, void *ptr)
 {
-	t_zone	*zone;
-	t_block	*blocks;
-
-	zone = allocator_zone;
-	for (; zone; zone = zone->next) {
-		blocks = zone->blocks;
-		for (; blocks; blocks = blocks->next) {
-			if (ptr >= GET_PTR_FROM_BLOCKS(blocks) && ptr < (void *)zone + zone->size)
-				return true;
-		}
+	for (t_zone *zone = allocator_zone; zone; zone = zone->next) {
+		void	*zone_start = (void *)((char *)zone + sizeof(t_zone));
+		void	*zone_end = (char *)zone + zone->size;
+		if (ptr >= zone_start && ptr < zone_end)
+			return true;
 	}
 
 	return false;

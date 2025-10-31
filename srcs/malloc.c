@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/30 10:34:31 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/31 14:29:21 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,10 @@
 t_allocator	g_allocator = {
 	.tiny = NULL,
 	.small = NULL,
-	.large = NULL
+	.large = NULL,
 };
+
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void	*large_malloc(size_t size)
 {
@@ -78,6 +80,8 @@ void	*malloc(size_t size)
 	if (size == 0)
 		return NULL;
 
+	pthread_mutex_lock(&mutex);
+
 	void	*ptr = NULL;
 
 	if (size <= TINY_BLOCK_SIZE)
@@ -87,6 +91,8 @@ void	*malloc(size_t size)
 	else 
 		ptr = large_malloc(size);
 
+	pthread_mutex_unlock(&mutex);
+
 	return ptr;
 }
 
@@ -95,21 +101,25 @@ void	free(void *ptr)
 	if (!ptr)
 		return;
 
+	pthread_mutex_lock(&mutex);
+
 	if (!search_ptr_in_zone(g_allocator.tiny, ptr)
-		&& !search_ptr_in_zone(g_allocator.small, ptr) 
-		&& !search_ptr_in_zone(g_allocator.large, ptr)) {
-			write(STDERR_FILENO, "Invalid pointer\n", 17);
-			return;
-		}
-
+	&& !search_ptr_in_zone(g_allocator.small, ptr) 
+	&& !search_ptr_in_zone(g_allocator.large, ptr)) {
+		pthread_mutex_unlock(&mutex);
+		return;
+	}
+	
 	t_block	*block = GET_BLOCKS_FROM_PTR(ptr);
-
+	
 	if (block->free == true) {
-		write(STDERR_FILENO, "Double free\n", 13);
+		pthread_mutex_unlock(&mutex);
 		return;
 	}
 	block->free = true;
 	merge_block(block);
+
+	pthread_mutex_unlock(&mutex);
 }
 
 void	*realloc(void *ptr, size_t size)
