@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/31 15:38:50 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/31 15:46:55 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,8 +135,10 @@ void	*realloc(void *ptr, size_t size)
 {
 	void	*new_ptr = NULL;
 
-	if (!ptr)
+	if (!ptr) {
 		new_ptr = malloc(size);
+		return new_ptr;
+	}
 
 	if (size == 0 && ptr)
 		free(ptr);
