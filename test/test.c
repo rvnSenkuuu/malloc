@@ -106,14 +106,23 @@ int	main(void)
 		return 1;
 	}
 
+	__attribute__((unused))int	*ptr3 = malloc(28);
+
 	memset(s, 'c', sz);
-	s[sz + 1] = '\0';
+	s[sz] = '\0';
 	printf("%s | %lu\n", s, strlen(s));
 
-	realloc(s, new_sz);
+	free(ptr3);
+	show_alloc_mem();
+
+	write(1, "-------\n", 8);
+
+	s = realloc(s, new_sz);
 	memset(s, 't', new_sz);
 	printf("%s | %lu\n", s, strlen(s));
 
+	
 	free(s);
+	show_alloc_mem();
 	return 0;
 }

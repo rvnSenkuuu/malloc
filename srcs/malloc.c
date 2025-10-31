@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/31 15:46:55 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/10/31 16:14:57 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,17 +140,22 @@ void	*realloc(void *ptr, size_t size)
 		return new_ptr;
 	}
 
-	if (size == 0 && ptr)
+	if (size == 0 && ptr) {
 		free(ptr);
+		return new_ptr;
+	}
 
 	t_block	*block = GET_BLOCKS_FROM_PTR(ptr);
 
-	if (block->size < size)
-		new_ptr = malloc(size);
+	if (block->size >= size)
+		return ptr;
 
-	if (new_ptr)
-		ft_memcpy(new_ptr, ptr, size);
+	new_ptr = malloc(size);
+	if (!new_ptr)
+		return ptr;
 
+	ft_memcpy(new_ptr, ptr, size);
 	free(ptr);
+
 	return new_ptr;
 }
