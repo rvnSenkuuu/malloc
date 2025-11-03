@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/31 18:48:38 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/03 09:41:31 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,14 @@
 
 #define _GNU_SOURCE
 
-#include <assert.h>
-#include <unistd.h>
-#include <sys/mman.h>
+#include <stdio.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdio.h>
+#include <unistd.h>
+#include <sys/mman.h>
 #include <pthread.h>
+#include <errno.h>
 
 #define ALIGNMENT 16
 #define ALIGN_TO(x, to_align) (((x) + (to_align) - 1) & ~((to_align) - 1))

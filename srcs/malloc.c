@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/31 18:48:35 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/03 09:37:11 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,12 @@ void	*malloc(size_t size)
 		ptr = small_malloc(&g_allocator.small, size);
 	else 
 		ptr = large_malloc(size);
+
+	if (!ptr) {
+		errno = ENOMEM;
+		pthread_mutex_unlock(&mutex);
+		return NULL;
+	}
 
 	pthread_mutex_unlock(&mutex);
 	return ptr;
