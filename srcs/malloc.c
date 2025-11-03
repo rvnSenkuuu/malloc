@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/03 09:37:11 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/03 11:31:57 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ t_allocator	g_allocator = {
 	.tiny = NULL,
 	.small = NULL,
 	.large = NULL,
+	.config = {0}
 };
 pthread_mutex_t	mutex;
 
@@ -96,6 +97,7 @@ void	*malloc(size_t size)
 		return NULL;
 	}
 
+	malloc_stats(ptr, size);
 	pthread_mutex_unlock(&mutex);
 	return ptr;
 }
@@ -115,6 +117,7 @@ void	free(void *ptr)
 	}
 	
 	t_block	*block = GET_BLOCKS_FROM_PTR(ptr);
+	size_t	block_size = block->size;
 	
 	if (block->free == true) {
 		pthread_mutex_unlock(&mutex);
@@ -122,7 +125,8 @@ void	free(void *ptr)
 	}
 	block->free = true;
 	merge_block(block);
-
+	
+	free_stats(ptr, block_size);
 	pthread_mutex_unlock(&mutex);
 }
 
@@ -167,6 +171,7 @@ void	*realloc(void *ptr, size_t size)
 	}
 
 	t_block	*block = GET_BLOCKS_FROM_PTR(ptr);
+	size_t	old_block_size = block->size;
 
 	if (block->size < size) {
 		pthread_mutex_unlock(&mutex);
@@ -186,6 +191,7 @@ void	*realloc(void *ptr, size_t size)
 	ft_memcpy(new_ptr, ptr, block->size);
 	free(ptr);
 
+	realloc_stats(ptr, new_ptr, old_block_size, size);
 	pthread_mutex_unlock(&mutex);
 	return new_ptr;
 }

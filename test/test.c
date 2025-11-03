@@ -5,45 +5,45 @@
 	#include <stdlib.h>
 #endif
 
-// void	*test_ptr_allocation(size_t size)
-// {
-// 	void *ptr = malloc(size);
-// 	if (!ptr)
-// 		return NULL;
+void	*test_ptr_allocation(size_t size)
+{
+	void *ptr = malloc(size);
+	if (!ptr)
+		return NULL;
 
-// 	unsigned char *addr = ptr;
-// 	for (size_t i = 0; i < size / sizeof(*ptr); i++)
-// 		addr[i] = i;
+	unsigned char *addr = ptr;
+	for (size_t i = 0; i < size / sizeof(*ptr); i++)
+		addr[i] = i;
 
-// 	return ptr;
-// }
+	return ptr;
+}
 
-// int	main(void)
-// {
-// 	__attribute__((unused))int	*ptr1 = test_ptr_allocation(40);
-// 	__attribute__((unused))int	*ptr2 = test_ptr_allocation(50);
-// 	__attribute__((unused))int	*ptr3 = test_ptr_allocation(10);
-// 	__attribute__((unused))int	*ptr4 = test_ptr_allocation(25);
-// 	__attribute__((unused))int	*ptr5 = test_ptr_allocation(100);
+int	main(void)
+{
+	__attribute__((unused))int	*ptr1 = test_ptr_allocation(40);
+	__attribute__((unused))int	*ptr2 = test_ptr_allocation(50);
+	__attribute__((unused))int	*ptr3 = test_ptr_allocation(10);
+	__attribute__((unused))int	*ptr4 = test_ptr_allocation(25);
+	__attribute__((unused))int	*ptr5 = test_ptr_allocation(100);
 
-// 	write(1, "===Before free===\n", 19);
-// 	show_alloc_mem();
-// 	free(ptr1);
-// 	free(ptr2);
-// 	free(ptr3);
-// 	free(ptr4);
-// 	free(ptr5);
-// 	write(1, "===After free===\n", 18);
-// 	show_alloc_mem();
+	write(1, "===Before free===\n", 19);
+	show_alloc_mem();
+	free(ptr1);
+	free(ptr2);
+	free(ptr3);
+	free(ptr4);
+	// free(ptr5);
+	write(1, "===After free===\n", 18);
+	show_alloc_mem();
 
-// 	__attribute__((unused))int	*ptr6 = test_ptr_allocation(35);
-// 	write(1, "===After===\n", 13);
-// 	show_alloc_mem();
+	__attribute__((unused))int	*ptr6 = test_ptr_allocation(35);
+	write(1, "===After===\n", 13);
+	show_alloc_mem();
 
-// 	free(ptr6);
+	free(ptr6);
 	
-// 	return 0;
-// }
+	return 0;
+}
 
 // #include <pthread.h>
 // #include <stdio.h>
@@ -127,54 +127,54 @@
 // 	return 0;
 // }
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+// #include <stdio.h>
+// #include <string.h>
+// #include <stdlib.h>
 
-// Ton allocateur custom ici
-void *malloc(size_t size);
-void free(void *ptr);
-void *realloc(void *ptr, size_t size);
+// // Ton allocateur custom ici
+// void *malloc(size_t size);
+// void free(void *ptr);
+// void *realloc(void *ptr, size_t size);
 
-int main(void)
-{
-    printf("=== Test realloc custom ===\n");
+// int main(void)
+// {
+//     printf("=== Test realloc custom ===\n");
 
-    // 1️⃣ Allocation simple
-    char *a = malloc(10);
-    strcpy(a, "Hello");
-    printf("Initial: %s (ptr=%p)\n", a, (void*)a);
+//     // 1️⃣ Allocation simple
+//     char *a = malloc(10);
+//     strcpy(a, "Hello");
+//     printf("Initial: %s (ptr=%p)\n", a, (void*)a);
 
-    // 2️⃣ Agrandir (sans merge possible)
-    char *b = realloc(a, 20);
-    printf("Agrandir (sans merge): %s (new ptr=%p)\n", b, (void*)b);
+//     // 2️⃣ Agrandir (sans merge possible)
+//     char *b = realloc(a, 20);
+//     printf("Agrandir (sans merge): %s (new ptr=%p)\n", b, (void*)b);
 
-    // 3️⃣ Réduire la taille
-    char *c = realloc(b, 5);
-    printf("Réduire la taille: %s (ptr=%p)\n", c, (void*)c);
+//     // 3️⃣ Réduire la taille
+//     char *c = realloc(b, 5);
+//     printf("Réduire la taille: %s (ptr=%p)\n", c, (void*)c);
 
-    // 4️⃣ Cas NULL
-    char *d = realloc(NULL, 15);
-    printf("Realloc(NULL): ptr=%p\n", (void*)d);
+//     // 4️⃣ Cas NULL
+//     char *d = realloc(NULL, 15);
+//     printf("Realloc(NULL): ptr=%p\n", (void*)d);
 
-    // 5️⃣ Cas size == 0
-    char *e = malloc(8);
-    char *f = realloc(e, 0);
-    printf("Realloc(size=0): ptr=%p (doit être NULL)\n", (void*)f);
+//     // 5️⃣ Cas size == 0
+//     char *e = malloc(8);
+//     char *f = realloc(e, 0);
+//     printf("Realloc(size=0): ptr=%p (doit être NULL)\n", (void*)f);
 
-    // 6️⃣ Test fusion (merge)
-    // ⚠️ Dépend de ton implémentation interne (zones libres consécutives)
-    // Simule une libération de bloc contigu pour forcer un merge
-    char *m1 = malloc(32);
-    char *m2 = malloc(32);
-    strcpy(m1, "MergeTest");
-    free(m2); // Libère le bloc suivant -> merge possible
-    char *m3 = realloc(m1, 60); // Doit tenter un merge avec m2
-    printf("Essai merge: %s (ptr=%p)\n", m3, (void*)m3);
+//     // 6️⃣ Test fusion (merge)
+//     // ⚠️ Dépend de ton implémentation interne (zones libres consécutives)
+//     // Simule une libération de bloc contigu pour forcer un merge
+//     char *m1 = malloc(32);
+//     char *m2 = malloc(32);
+//     strcpy(m1, "MergeTest");
+//     free(m2); // Libère le bloc suivant -> merge possible
+//     char *m3 = realloc(m1, 60); // Doit tenter un merge avec m2
+//     printf("Essai merge: %s (ptr=%p)\n", m3, (void*)m3);
 
-    free(m3);
-    free(d);
-    printf("=== Fin des tests ===\n");
+//     free(m3);
+//     free(d);
+//     printf("=== Fin des tests ===\n");
 
-    return 0;
-}
+//     return 0;
+// }

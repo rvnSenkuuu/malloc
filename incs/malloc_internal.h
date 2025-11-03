@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/03 09:41:31 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/03 12:17:22 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,13 @@
 #define _GNU_SOURCE
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/mman.h>
 #include <pthread.h>
 #include <errno.h>
@@ -52,6 +55,18 @@ typedef enum {
 	LARGE,
 } t_zone_type;
 
+typedef struct	s_config {
+	bool	stats;
+	bool	verbose;
+	int	file_fd;
+
+	size_t	total_allocs;
+	size_t	total_frees;
+	size_t	allocated_block_count;
+	size_t	bytes_allocated;
+	size_t	bytes_freed;
+} t_config;
+
 typedef struct __attribute__((aligned(ALIGNMENT))) s_block {
 	bool	free;
 	size_t	size;
@@ -71,6 +86,7 @@ typedef struct __attribute__((aligned(ALIGNMENT))) s_allocator {
 	t_zone	*tiny;
 	t_zone	*small;
 	t_zone	*large;
+	t_config	config;
 } t_allocator;
 
 extern t_allocator	g_allocator;
@@ -80,6 +96,8 @@ void	free(void *ptr);
 void	*malloc(size_t size);
 
 void	ft_memcpy(void *d, const void *s, size_t n);
+void	ft_putstr_fd(int fd, const char *s);
+void	ft_putnbr_fd(int fd, size_t n);
 void	add_zone_to_allocator(t_zone **allocator_zone, t_zone *zone);
 void	split_block(t_block *block, size_t size);
 void	merge_block(t_block *block);
@@ -89,5 +107,11 @@ bool	check_zone_has_space(t_zone *zone, size_t total_block_size);
 bool	search_ptr_in_zone(t_zone *allocator_zone, void *ptr);
 void	*insert_block_in_zone(t_zone *zone, size_t size);
 t_zone	*create_small_zone(t_zone_type type);
+
+void	malloc_stats(void *ptr, size_t size);
+void	free_stats(void *ptr, size_t size);
+void	realloc_stats(void *old_ptr, void *new_ptr, size_t old_size, size_t new_size);
+void	malloc_config_init(void);
+void	malloc_config_clean(void);
 
 #endif

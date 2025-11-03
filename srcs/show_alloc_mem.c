@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/10/30 16:53:10 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/03 10:56:01 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,11 @@ static size_t	ft_strlen(const char *s)
 static void	ft_putstr(const char *s)
 {
 	write(STDOUT_FILENO, s, ft_strlen(s));
+}
+
+void	ft_putstr_fd(int fd, const char *s)
+{
+	write(fd, s, ft_strlen(s));
 }
 
 void	ft_puthex(size_t addr)
@@ -46,6 +51,20 @@ void	ft_putnbr(size_t n)
 	}
 	
 	write(STDOUT_FILENO, buf, sizeof(buf));
+}
+
+void	ft_putnbr_fd(int fd, size_t n)
+{
+	int	i = 19;
+	char	buf[21] = {0};
+
+	while (n > 0) {
+		buf[i] = (n % 10) + '0';
+		--i;
+		n /= 10;
+	}
+	
+	write(fd, buf, sizeof(buf));
 }
 
 void	print_zone_info(t_zone *zone)
