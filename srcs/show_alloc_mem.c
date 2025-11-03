@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/03 15:59:07 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/03 19:14:55 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,4 +90,53 @@ void	show_alloc_mem(void)
 	if (g_allocator.large)
 		print_zone_info(g_allocator.large, "LARGE");
 	pthread_mutex_unlock(&mutex);
+}
+
+void	print_block_header(t_block *block, int block_id)
+{
+	char	*block_status = block->free ? "FREE" : "ALLOCATED";
+	dprintf(STDOUT_FILENO, "=================================================================\n");
+	dprintf(STDOUT_FILENO, "| Block #%d | Status: %s | Size: %zu | Address: %p\n",
+			block_id, block_status, block->size, block);
+	dprintf(STDOUT_FILENO, "| Prev Block: %p | Next Block: %p\n", block->prev, block->next);
+	dprintf(STDOUT_FILENO, "| User pointer: %p\n", GET_PTR_FROM_BLOCKS(block));
+	dprintf(STDOUT_FILENO, "=================================================================\n");
+}
+
+void	print_block_hex_dump(void *ptr, size_t size)
+{
+	dprintf(STDOUT_FILENO, "Block Data: \n");
+
+	(void)ptr;
+	(void)size;
+
+	dprintf(STDOUT_FILENO, "=================================================================\n");
+}
+
+void	print_zone_ex(t_zone *zone, const char *zone_type)
+{
+	int	block_id = 0;
+	for (t_zone *current = zone; current; current = current->next) {
+		dprintf(STDOUT_FILENO, "--------------------------------------------------\n");
+		dprintf(STDOUT_FILENO, " Zone Type: %s | Zone Addr: %p\n Zone Used Size: %.1f%% | Next Zone Addr: %p\n",
+			zone_type, current, (current->used_size * 100.0) / current->size, current->next);
+		dprintf(STDOUT_FILENO, "--------------------------------------------------\n");
+
+		for (t_block *block = zone->blocks; block; block = block->next) {
+			++block_id;
+			print_block_header(block, block_id);
+			// print_block_hex_dump(GET_PTR_FROM_BLOCKS(block), block->size);
+			write(STDOUT_FILENO, "\n", sizeof(char));
+		}
+	}
+}
+
+void	show_alloc_mem_ex(void)
+{
+	if (g_allocator.tiny)
+		print_zone_ex(g_allocator.tiny, "TINY");
+	if (g_allocator.small)
+		print_zone_ex(g_allocator.small, "SMALL");
+	if (g_allocator.large)
+		print_zone_ex(g_allocator.large, "LARGE");
 }
