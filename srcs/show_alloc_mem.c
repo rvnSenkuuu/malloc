@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/03 10:56:01 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/03 14:15:50 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,20 +37,6 @@ void	ft_puthex(size_t addr)
 	if (addr >= 16)
 		ft_puthex(addr / 16);
 	write(STDOUT_FILENO, &base[addr % 16], sizeof(char));
-}
-
-void	ft_putnbr(size_t n)
-{
-	int	i = 19;
-	char	buf[21] = {0};
-
-	while (n > 0) {
-		buf[i] = (n % 10) + '0';
-		--i;
-		n /= 10;
-	}
-	
-	write(STDOUT_FILENO, buf, sizeof(buf));
 }
 
 void	ft_putnbr_fd(int fd, size_t n)
@@ -98,15 +84,11 @@ void	print_zone_info(t_zone *zone)
 			ft_putstr("0x");
 			ft_puthex((size_t)blocks + blocks->size);
 			ft_putstr(" : ");
-			ft_putnbr(blocks->size);
+			ft_putnbr_fd(STDOUT_FILENO, blocks->size);
 			ft_putstr(" bytes\n");
-			blocks->free ? ft_putstr("Block is free\n") : ft_putstr("Block is not free\n");
 		}
-		ft_putstr("Zone size: ");
-		ft_putnbr(zone->size);
-		ft_putstr(" Bytes\n");
 		ft_putstr("Total bytes: ");
-		ft_putnbr(total_bytes);
+		ft_putnbr_fd(STDOUT_FILENO, total_bytes);
 		ft_putstr(" bytes\n");
 		ft_putstr("\n");
 	}

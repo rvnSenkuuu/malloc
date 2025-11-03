@@ -32,7 +32,7 @@ int	main(void)
 	free(ptr2);
 	free(ptr3);
 	free(ptr4);
-	// free(ptr5);
+	free(ptr5);
 	write(1, "===After free===\n", 18);
 	show_alloc_mem();
 

@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/03 10:26:17 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/03 12:26:05 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/03 14:21:13 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ __attribute__((destructor))
 void	malloc_config_clean(void)
 {
 	int	len;
-	char	buffer[512];
+	char	buffer[128];
 	if (g_allocator.config.stats) {
 		
 		ft_putstr_fd(g_allocator.config.file_fd, "=== MALLOC STATISTICS ===\n");
@@ -105,7 +105,7 @@ void	realloc_stats(void *old_ptr, void *new_ptr, size_t old_size, size_t new_siz
 {   
     if (g_allocator.config.verbose)
     {
-        char buffer[256];
+        char buffer[128];
         int len = snprintf(buffer, sizeof(buffer), "[MALLOC] realloc(%p, %zu) = %p [was %zu bytes]\n",
 						  old_ptr, new_size, new_ptr, old_size);
         write(g_allocator.config.file_fd, buffer, len);
