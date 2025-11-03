@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/03 12:17:22 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/03 15:48:48 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ typedef enum {
 typedef struct	s_config {
 	bool	stats;
 	bool	verbose;
+	bool	config_initialized;
 	int	file_fd;
 
 	size_t	total_allocs;

@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/03 10:26:17 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/03 14:21:13 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/03 15:52:55 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,26 +15,34 @@
 __attribute__((constructor))
 void	malloc_config_init(void)
 {
+	if (g_allocator.config.config_initialized)
+		return;
+
 	char	*stats = getenv("MALLOC_STATS");
 	char	*verbose = getenv("MALLOC_VERBOSE");
 	char	*log_file = getenv("MALLOC_TRACE");
-
+	
 	if (stats && !strcmp(stats, "true"))
 		g_allocator.config.stats = true;
 	if (verbose && !strcmp(verbose, "yes"))
 		g_allocator.config.verbose = true;
 	if (log_file) {
-		g_allocator.config.file_fd = open(log_file, O_CREAT | O_WRONLY, 0644);
+		g_allocator.config.file_fd = open(log_file, O_CREAT | O_WRONLY | O_APPEND, 0644);
 		if (g_allocator.config.file_fd < 0) {
 			perror("Open failed for malloc trace config file using STDERR_FILENO as default fd");
-			g_allocator.config.file_fd = STDERR_FILENO;
 		}
 	}
+	else
+		g_allocator.config.file_fd = STDERR_FILENO;
+	g_allocator.config.config_initialized = true;
 }
 
 __attribute__((destructor))
 void	malloc_config_clean(void)
 {
+	if (!g_allocator.config.config_initialized)
+		return;
+
 	int	len;
 	char	buffer[128];
 	if (g_allocator.config.stats) {
@@ -74,6 +82,9 @@ void	malloc_config_clean(void)
 
 void	malloc_stats(void *ptr, size_t size)
 {
+	if (!g_allocator.config.config_initialized)
+		malloc_config_init();
+
 	if (g_allocator.config.stats) {
 		g_allocator.config.total_allocs++;
 		g_allocator.config.allocated_block_count++;
@@ -89,6 +100,9 @@ void	malloc_stats(void *ptr, size_t size)
 
 void	free_stats(void *ptr, size_t size)
 {
+	if (!g_allocator.config.config_initialized)
+		return;
+
 	if (g_allocator.config.stats) {
 		g_allocator.config.total_frees++;
 		g_allocator.config.allocated_block_count--;
@@ -102,7 +116,10 @@ void	free_stats(void *ptr, size_t size)
 }
 
 void	realloc_stats(void *old_ptr, void *new_ptr, size_t old_size, size_t new_size)
-{   
+{	
+	if (!g_allocator.config.config_initialized)
+		return;
+
     if (g_allocator.config.verbose)
     {
         char buffer[128];

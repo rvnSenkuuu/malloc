@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/03 14:15:50 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/03 15:59:07 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,22 +53,9 @@ void	ft_putnbr_fd(int fd, size_t n)
 	write(fd, buf, sizeof(buf));
 }
 
-void	print_zone_info(t_zone *zone)
+void	print_zone_info(t_zone *zone, const char *zone_type)
 {
-	char	*buf;
-	switch (zone->type) {
-		case TINY:
-			buf = "TINY";
-			break;
-		case SMALL:
-			buf = "SMALL";
-			break;
-		case LARGE:
-			buf = "LARGE";
-			break;
-		default: break;
-	}
-	ft_putstr(buf);
+	ft_putstr(zone_type);
 	ft_putstr(" : ");
 	ft_putstr("0x");
 	ft_puthex((size_t)zone);
@@ -90,16 +77,17 @@ void	print_zone_info(t_zone *zone)
 		ft_putstr("Total bytes: ");
 		ft_putnbr_fd(STDOUT_FILENO, total_bytes);
 		ft_putstr(" bytes\n");
-		ft_putstr("\n");
 	}
 }
 
 void	show_alloc_mem(void)
 {
+	pthread_mutex_lock(&mutex);
 	if (g_allocator.tiny)
-		print_zone_info(g_allocator.tiny);
+		print_zone_info(g_allocator.tiny, "TINY");
 	if (g_allocator.small)
-		print_zone_info(g_allocator.small);
+		print_zone_info(g_allocator.small, "SMALL");
 	if (g_allocator.large)
-		print_zone_info(g_allocator.large);
+		print_zone_info(g_allocator.large, "LARGE");
+	pthread_mutex_unlock(&mutex);
 }
