@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/04 11:42:05 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/04 15:26:05 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,16 +83,18 @@ void	print_zone_info(t_zone *zone, const char *zone_type)
 void	show_alloc_mem(void)
 {
 	pthread_mutex_lock(&mutex);
+
 	if (g_allocator.tiny)
 		print_zone_info(g_allocator.tiny, "TINY");
 	if (g_allocator.small)
 		print_zone_info(g_allocator.small, "SMALL");
 	if (g_allocator.large)
 		print_zone_info(g_allocator.large, "LARGE");
+
 	pthread_mutex_unlock(&mutex);
 }
 
-void	print_block_header(t_block *block, int block_id, char *buffer, size_t buffer_size)
+void	block_header(t_block *block, int block_id, char *buffer, size_t buffer_size)
 {
 	size_t	offset = ft_strlen(buffer);
 	char	*block_status = block->free ? "FREE" : "ALLOCATED";
@@ -114,7 +116,7 @@ void	print_block_header(t_block *block, int block_id, char *buffer, size_t buffe
 		"=================================================================\n");
 }
 
-void	print_block_hex_dump(void *ptr, size_t size, char *buffer, size_t buffer_size)
+void	block_hex_dump(void *ptr, size_t size, char *buffer, size_t buffer_size)
 {
 	size_t	i, j;
 	char ascii[17] = {0};
@@ -133,7 +135,7 @@ void	print_block_hex_dump(void *ptr, size_t size, char *buffer, size_t buffer_si
 		if ((i + 1) % 8 == 0 || i + 1 == size) {
 			offset += snprintf(buffer + offset, buffer_size - offset, " ");
 
-			if ((i+1) % 16 == 0)
+			if ((i + 1) % 16 == 0)
 				offset += snprintf(buffer + offset, buffer_size - offset, "|  %s \n", ascii);
 
 			else if (i + 1 == size) {
@@ -148,8 +150,6 @@ void	print_block_hex_dump(void *ptr, size_t size, char *buffer, size_t buffer_si
 			}
 		}
 	}
-	offset += snprintf(buffer + offset, buffer_size - offset, 
-		"=================================================================\n");
 }
 
 void	print_zone_ex(t_zone *zone, const char *zone_type)
@@ -168,10 +168,28 @@ void	print_zone_ex(t_zone *zone, const char *zone_type)
 		offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
 			"--------------------------------------------------\n");
 
-		for (t_block *block = zone->blocks; block; block = block->next) {
+		write(g_allocator.config.file_fd, buffer, ft_strlen(buffer));
+
+		for (t_block *block = current->blocks; block; block = block->next) {
+			memset(buffer, 0, BUFFER_SIZE);
+			offset = 0;
+
 			++block_id;
-			print_block_header(block, block_id, buffer, BUFFER_SIZE);
-			print_block_hex_dump(GET_PTR_FROM_BLOCKS(block), block->size, buffer, BUFFER_SIZE);
+			block_header(block, block_id, buffer, BUFFER_SIZE);
+
+			size_t	dump_size = block->size;
+			if (dump_size > 256)
+				dump_size = 256;
+			
+			block_hex_dump(GET_PTR_FROM_BLOCKS(block), dump_size, buffer, BUFFER_SIZE);
+			if (block->size > 256) {
+				offset = strlen(buffer);
+				offset += snprintf(buffer + offset, BUFFER_SIZE - offset,
+					"... (showing first 256 of %zu bytes)\n", block->size);
+			}
+			offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
+				"=================================================================\n");
+
 			if (block->next) {
 				offset = ft_strlen(buffer);
 				offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
@@ -180,8 +198,8 @@ void	print_zone_ex(t_zone *zone, const char *zone_type)
 					"                            v                   \n");
 			}
 		}
+		write(g_allocator.config.file_fd, buffer, ft_strlen(buffer));
 	}
-	write(g_allocator.config.file_fd, buffer, ft_strlen(buffer));
 }
 
 void	show_alloc_mem_ex(void)

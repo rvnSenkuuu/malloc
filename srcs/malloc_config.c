@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/03 10:26:17 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/03 15:52:55 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/04 14:48:41 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void	malloc_config_init(void)
 	if (verbose && !strcmp(verbose, "yes"))
 		g_allocator.config.verbose = true;
 	if (log_file) {
-		g_allocator.config.file_fd = open(log_file, O_CREAT | O_WRONLY | O_APPEND, 0644);
+		g_allocator.config.file_fd = open(log_file, O_CREAT | O_WRONLY, 0644);
 		if (g_allocator.config.file_fd < 0) {
 			perror("Open failed for malloc trace config file using STDERR_FILENO as default fd");
 		}

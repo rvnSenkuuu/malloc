@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/03 11:31:57 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/04 15:08:57 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ void	*large_malloc(size_t size)
 	
 	zone->type = LARGE;
 	zone->size = real_size;
+	zone->used_size = real_size;
 	zone->next = NULL;
 	
 	zone->blocks = GET_BLOCKS_FROM_ZONE(zone);
