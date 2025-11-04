@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/03 15:48:48 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/04 11:01:09 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@
 #define ALIGNMENT 16
 #define ALIGN_TO(x, to_align) (((x) + (to_align) - 1) & ~((to_align) - 1))
 
-#define TINY_BLOCK_SIZE 256
-#define SMALL_BLOCK_SIZE 1024
+#define TINY_BLOCK_SIZE 128
+#define SMALL_BLOCK_SIZE 512
 #define MIN_BLOCK_COUNT 100
 
 #define GET_PAGE_SIZE sysconf(_SC_PAGE_SIZE)

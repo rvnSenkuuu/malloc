@@ -26,23 +26,14 @@ int	main(void)
 	__attribute__((unused))int	*ptr4 = test_ptr_allocation(25);
 	__attribute__((unused))int	*ptr5 = test_ptr_allocation(100);
 
-	write(1, "===Before free===\n", 19);
-	// show_alloc_mem();
 	show_alloc_mem_ex();
+	
 	free(ptr1);
 	free(ptr2);
 	free(ptr3);
 	free(ptr4);
 	free(ptr5);
-	// write(1, "===After free===\n", 18);
-	// show_alloc_mem();
 
-	__attribute__((unused))int	*ptr6 = test_ptr_allocation(35);
-	// write(1, "===After===\n", 13);
-	// show_alloc_mem();
-
-	free(ptr6);
-	
 	return 0;
 }
 

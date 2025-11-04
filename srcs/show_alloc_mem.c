@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/03 19:14:55 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/04 11:03:15 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,9 +107,36 @@ void	print_block_hex_dump(void *ptr, size_t size)
 {
 	dprintf(STDOUT_FILENO, "Block Data: \n");
 
-	(void)ptr;
-	(void)size;
+	size_t	i, j;
+	char ascii[17] = {0};
+	unsigned char	*data = (unsigned char *)ptr;
+	
+	for (i = 0; i < size; ++i) {
+		dprintf(STDOUT_FILENO, "%02x ", data[i]);
 
+		if (data[i] >= ' ' && data[i] <= '~')
+			ascii[i % 16] = data[i];
+		else
+			ascii[i % 16] = '.';
+
+		if ((i + 1) % 8 == 0 || i + 1 == size) {
+			dprintf(STDOUT_FILENO, " ");
+
+			if ((i+1) % 16 == 0)
+				dprintf(STDOUT_FILENO, "|  %s \n", ascii);
+			else if (i + 1 == size) {
+				ascii[(i + 1) % 16] = '\0';
+				
+				if ((i + 1) % 16 <= 8)
+					dprintf(STDOUT_FILENO, " ");
+
+				for (j = (i + 1) % 16; j < 16; ++j)
+					dprintf(STDOUT_FILENO, "   ");
+
+				dprintf(STDOUT_FILENO, "|  %s \n", ascii);
+			}
+		}
+	}
 	dprintf(STDOUT_FILENO, "=================================================================\n");
 }
 
@@ -125,18 +152,25 @@ void	print_zone_ex(t_zone *zone, const char *zone_type)
 		for (t_block *block = zone->blocks; block; block = block->next) {
 			++block_id;
 			print_block_header(block, block_id);
-			// print_block_hex_dump(GET_PTR_FROM_BLOCKS(block), block->size);
-			write(STDOUT_FILENO, "\n", sizeof(char));
+			print_block_hex_dump(GET_PTR_FROM_BLOCKS(block), block->size);
+			if (block->next) {
+				dprintf(STDOUT_FILENO, "                            |                   \n");
+				dprintf(STDOUT_FILENO, "                            v                   \n");
+			}
 		}
 	}
 }
 
 void	show_alloc_mem_ex(void)
 {
+	pthread_mutex_lock(&mutex);
+	
 	if (g_allocator.tiny)
 		print_zone_ex(g_allocator.tiny, "TINY");
 	if (g_allocator.small)
 		print_zone_ex(g_allocator.small, "SMALL");
 	if (g_allocator.large)
 		print_zone_ex(g_allocator.large, "LARGE");
+
+	pthread_mutex_unlock(&mutex);
 }
