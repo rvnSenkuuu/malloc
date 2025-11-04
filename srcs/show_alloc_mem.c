@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/04 11:03:15 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/04 11:42:05 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,27 +92,38 @@ void	show_alloc_mem(void)
 	pthread_mutex_unlock(&mutex);
 }
 
-void	print_block_header(t_block *block, int block_id)
+void	print_block_header(t_block *block, int block_id, char *buffer, size_t buffer_size)
 {
+	size_t	offset = ft_strlen(buffer);
 	char	*block_status = block->free ? "FREE" : "ALLOCATED";
-	dprintf(STDOUT_FILENO, "=================================================================\n");
-	dprintf(STDOUT_FILENO, "| Block #%d | Status: %s | Size: %zu | Address: %p\n",
-			block_id, block_status, block->size, block);
-	dprintf(STDOUT_FILENO, "| Prev Block: %p | Next Block: %p\n", block->prev, block->next);
-	dprintf(STDOUT_FILENO, "| User pointer: %p\n", GET_PTR_FROM_BLOCKS(block));
-	dprintf(STDOUT_FILENO, "=================================================================\n");
+	
+	offset += snprintf(buffer + offset, buffer_size - offset, 
+		"=================================================================\n");
+	
+	offset += snprintf(buffer + offset, buffer_size - offset, 
+		"| Block #%d | Status: %s | Size: %zu | Address: %p\n",
+		block_id, block_status, block->size, block);
+
+	offset += snprintf(buffer + offset, buffer_size - offset, 
+		"| Prev Block: %p | Next Block: %p\n", block->prev, block->next);
+
+	offset += snprintf(buffer + offset, buffer_size - offset, 
+		"| User pointer: %p\n", GET_PTR_FROM_BLOCKS(block));
+
+	offset += snprintf(buffer + offset, buffer_size - offset, 
+		"=================================================================\n");
 }
 
-void	print_block_hex_dump(void *ptr, size_t size)
+void	print_block_hex_dump(void *ptr, size_t size, char *buffer, size_t buffer_size)
 {
-	dprintf(STDOUT_FILENO, "Block Data: \n");
-
 	size_t	i, j;
 	char ascii[17] = {0};
+	size_t	offset = ft_strlen(buffer);
 	unsigned char	*data = (unsigned char *)ptr;
-	
+
+	offset += snprintf(buffer + offset, buffer_size - offset, "Block Data: \n");
 	for (i = 0; i < size; ++i) {
-		dprintf(STDOUT_FILENO, "%02x ", data[i]);
+		offset += snprintf(buffer + offset, buffer_size - offset, "%02x ", data[i]);
 
 		if (data[i] >= ' ' && data[i] <= '~')
 			ascii[i % 16] = data[i];
@@ -120,45 +131,57 @@ void	print_block_hex_dump(void *ptr, size_t size)
 			ascii[i % 16] = '.';
 
 		if ((i + 1) % 8 == 0 || i + 1 == size) {
-			dprintf(STDOUT_FILENO, " ");
+			offset += snprintf(buffer + offset, buffer_size - offset, " ");
 
 			if ((i+1) % 16 == 0)
-				dprintf(STDOUT_FILENO, "|  %s \n", ascii);
+				offset += snprintf(buffer + offset, buffer_size - offset, "|  %s \n", ascii);
+
 			else if (i + 1 == size) {
 				ascii[(i + 1) % 16] = '\0';
 				
 				if ((i + 1) % 16 <= 8)
-					dprintf(STDOUT_FILENO, " ");
+					offset += snprintf(buffer + offset, buffer_size - offset, " ");
 
 				for (j = (i + 1) % 16; j < 16; ++j)
-					dprintf(STDOUT_FILENO, "   ");
-
-				dprintf(STDOUT_FILENO, "|  %s \n", ascii);
+					offset += snprintf(buffer + offset, buffer_size - offset, "   ");
+				offset += snprintf(buffer + offset, buffer_size - offset, "|  %s \n", ascii);
 			}
 		}
 	}
-	dprintf(STDOUT_FILENO, "=================================================================\n");
+	offset += snprintf(buffer + offset, buffer_size - offset, 
+		"=================================================================\n");
 }
 
 void	print_zone_ex(t_zone *zone, const char *zone_type)
 {
 	int	block_id = 0;
+	char	buffer[BUFFER_SIZE] = {0};
 	for (t_zone *current = zone; current; current = current->next) {
-		dprintf(STDOUT_FILENO, "--------------------------------------------------\n");
-		dprintf(STDOUT_FILENO, " Zone Type: %s | Zone Addr: %p\n Zone Used Size: %.1f%% | Next Zone Addr: %p\n",
+		size_t	offset = strlen(buffer);
+
+		offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
+			"\n--------------------------------------------------\n");
+
+		offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " Zone Type: %s | Zone Addr: %p\n Zone Used Size: %.1f%% | Next Zone Addr: %p\n",
 			zone_type, current, (current->used_size * 100.0) / current->size, current->next);
-		dprintf(STDOUT_FILENO, "--------------------------------------------------\n");
+
+		offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
+			"--------------------------------------------------\n");
 
 		for (t_block *block = zone->blocks; block; block = block->next) {
 			++block_id;
-			print_block_header(block, block_id);
-			print_block_hex_dump(GET_PTR_FROM_BLOCKS(block), block->size);
+			print_block_header(block, block_id, buffer, BUFFER_SIZE);
+			print_block_hex_dump(GET_PTR_FROM_BLOCKS(block), block->size, buffer, BUFFER_SIZE);
 			if (block->next) {
-				dprintf(STDOUT_FILENO, "                            |                   \n");
-				dprintf(STDOUT_FILENO, "                            v                   \n");
+				offset = ft_strlen(buffer);
+				offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
+					"                            |                   \n");
+				offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
+					"                            v                   \n");
 			}
 		}
 	}
+	write(g_allocator.config.file_fd, buffer, ft_strlen(buffer));
 }
 
 void	show_alloc_mem_ex(void)
