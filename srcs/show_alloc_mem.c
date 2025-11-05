@@ -6,13 +6,13 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/05 11:23:19 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/05 15:31:59 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc_internal.h"
 
-static size_t	ft_strlen(const char *s)
+size_t	ft_strlen(const char *s)
 {
 	size_t	len = 0;
 	while (s[len])
@@ -94,50 +94,54 @@ void	show_alloc_mem(void)
 	pthread_mutex_unlock(&mutex);
 }
 
-void	zone_header(t_zone *zone, char *buffer, size_t offset, const char *zone_type)
+void	zone_header(t_zone *zone, const char *zone_type)
 {
-	offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
+	ft_dprintf(g_allocator.config.file_fd, 
 		"\n--------------------------------------------------\n");
 
-	offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " Zone Type: %s | Zone Addr: %p\n Zone Used Size: %.1f%% | Next Zone Addr: %p\n",
-		zone_type, zone, (zone->used_size * 100.0) / zone->size, zone->next);
+	ft_dprintf(g_allocator.config.file_fd, " Zone Type: %s | Zone Addr: %p\n Zone Used Size: %d bytes | Next Zone Addr: %p\n",
+		zone_type, zone, zone->used_size, zone->next);
 
-	offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
-		"--------------------------------------------------\n");	
+	ft_dprintf(g_allocator.config.file_fd, 
+		"--------------------------------------------------\n");
 }
 
-void	block_header(t_block *block, int block_id, char *buffer, size_t buffer_size)
+void	block_header(t_block *block, int block_id)
 {
-	size_t	offset = ft_strlen(buffer);
 	char	*block_status = block->free ? "FREE" : "ALLOCATED";
 	
-	offset += snprintf(buffer + offset, buffer_size - offset, 
+	ft_dprintf(g_allocator.config.file_fd, 
 		"=================================================================\n");
-	
-	offset += snprintf(buffer + offset, buffer_size - offset, 
-		"| Block #%d | Status: %s | Size: %zu | Address: %p\n",
-		block_id, block_status, block->size, block);
 
-	offset += snprintf(buffer + offset, buffer_size - offset, 
-		"| Prev Block: %p | Next Block: %p\n", block->prev, block->next);
+	ft_dprintf(g_allocator.config.file_fd, 
+		"| Block #%d | Status: %s | Size: %d bytes\n",
+		block_id, block_status, block->size);
 
-	offset += snprintf(buffer + offset, buffer_size - offset, 
+	ft_dprintf(g_allocator.config.file_fd, 
+		"| Address: %p | Prev Block: %p | Next Block: %p\n",block, block->prev, block->next);
+
+	ft_dprintf(g_allocator.config.file_fd, 
 		"| User pointer: %p\n", GET_PTR_FROM_BLOCKS(block));
 
-	offset += snprintf(buffer + offset, buffer_size - offset, 
+	ft_dprintf(g_allocator.config.file_fd, 
 		"=================================================================\n");
 }
 
-void	block_hex_dump(void *ptr, size_t size, char *buffer, size_t buffer_size)
+void	block_hex_dump(void *ptr, size_t size)
 {
 	size_t	i, j;
 	char ascii[17] = {0};
-	size_t	offset = ft_strlen(buffer);
 	unsigned char	*data = (unsigned char *)ptr;
+	char	*base = "0123456789abcdef";
 
-	offset += snprintf(buffer + offset, buffer_size - offset, "Block Data: \n");
+	ft_dprintf(g_allocator.config.file_fd, "Block Data: \n");
 	for (i = 0; i < size; ++i) {
-		offset += snprintf(buffer + offset, buffer_size - offset, "%02x ", data[i]);
+
+		char	hex[4] = {0};
+		hex[0] = base[(data[i] >> 4) & 0x0F];
+		hex[1] = base[data[i] & 0x0F];
+		hex[2] = ' ';
+		ft_dprintf(g_allocator.config.file_fd, "%s", hex);
 
 		if (data[i] >= ' ' && data[i] <= '~')
 			ascii[i % 16] = data[i];
@@ -145,20 +149,21 @@ void	block_hex_dump(void *ptr, size_t size, char *buffer, size_t buffer_size)
 			ascii[i % 16] = '.';
 
 		if ((i + 1) % 8 == 0 || i + 1 == size) {
-			offset += snprintf(buffer + offset, buffer_size - offset, " ");
+			ft_dprintf(g_allocator.config.file_fd, " ");
 
 			if ((i + 1) % 16 == 0)
-				offset += snprintf(buffer + offset, buffer_size - offset, "|  %s \n", ascii);
+				ft_dprintf(g_allocator.config.file_fd, "| %s \n", ascii);
 
 			else if (i + 1 == size) {
 				ascii[(i + 1) % 16] = '\0';
 				
 				if ((i + 1) % 16 <= 8)
-					offset += snprintf(buffer + offset, buffer_size - offset, " ");
+					ft_dprintf(g_allocator.config.file_fd, " ");
 
 				for (j = (i + 1) % 16; j < 16; ++j)
-					offset += snprintf(buffer + offset, buffer_size - offset, "   ");
-				offset += snprintf(buffer + offset, buffer_size - offset, "|  %s \n", ascii);
+					ft_dprintf(g_allocator.config.file_fd, "   ");
+
+				ft_dprintf(g_allocator.config.file_fd, "|  %s \n", ascii);
 			}
 		}
 	}
@@ -167,43 +172,27 @@ void	block_hex_dump(void *ptr, size_t size, char *buffer, size_t buffer_size)
 void	print_zone_ex(t_zone *zone, const char *zone_type)
 {
 	int	block_id = 0;
-	char	buffer[BUFFER_SIZE] = {0};
 	for (t_zone *current = zone; current; current = current->next) {
-		size_t	offset = ft_strlen(buffer);
 
-		zone_header(current, buffer, offset, zone_type);
-		write(g_allocator.config.file_fd, buffer, ft_strlen(buffer));
-
+		zone_header(current, zone_type);
 		for (t_block *block = current->blocks; block; block = block->next) {
-			memset(buffer, 0, BUFFER_SIZE);
-			offset = 0;
 
 			++block_id;
-			block_header(block, block_id, buffer, BUFFER_SIZE);
+			block_header(block, block_id);
 
 			size_t	dump_size = block->size;
 			if (dump_size > 256)
 				dump_size = 256;
 			
-			block_hex_dump(GET_PTR_FROM_BLOCKS(block), dump_size, buffer, BUFFER_SIZE);
-			if (block->size > 256) {
-				offset = ft_strlen(buffer);
-				offset += snprintf(buffer + offset, BUFFER_SIZE - offset,
-					"... (showing first 256 of %zu bytes)\n", block->size);
-			}
-			offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
-				"=================================================================\n");
+			block_hex_dump(GET_PTR_FROM_BLOCKS(block), dump_size);
+			if (block->size > 256)
+				ft_dprintf(g_allocator.config.file_fd, "... (showing first 256 of %zu bytes)\n", block->size);
+			ft_dprintf(g_allocator.config.file_fd, "=================================================================\n");
 
 			if (block->next) {
-				offset = ft_strlen(buffer);
-				offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
-					"                            |                   \n");
-				offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
-					"                            v                   \n");
+				ft_dprintf(g_allocator.config.file_fd, "                            |                   \n");
+				ft_dprintf(g_allocator.config.file_fd, "                            v                   \n");
 			}
-			write(g_allocator.config.file_fd, buffer, ft_strlen(buffer));
-			memset(buffer, 0, BUFFER_SIZE);
-			offset = 0;
 		}
 	}
 }

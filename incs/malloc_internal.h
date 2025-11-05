@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/05 12:52:48 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/05 15:33:38 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 #include <sys/mman.h>
 #include <pthread.h>
 #include <errno.h>
+#include <stdarg.h>
 
 #define ALIGNMENT 16
 #define ALIGN_TO(x, to_align) (((x) + (to_align) - 1) & ~((to_align) - 1))
@@ -33,7 +34,6 @@
 #define TINY_BLOCK_SIZE 32
 #define SMALL_BLOCK_SIZE 512
 #define MIN_BLOCK_COUNT 100
-#define BUFFER_SIZE 4096
 
 #define GET_PAGE_SIZE sysconf(_SC_PAGE_SIZE)
 
@@ -117,5 +117,7 @@ void	ft_memcpy(void *d, const void *s, size_t n);
 void	ft_putstr_fd(int fd, const char *s);
 void	ft_putnbr_fd(int fd, size_t n);
 int	ft_strncmp(const char *s1, const char *s2, size_t n);
+int	ft_dprintf(int fd, const char *format, ...);
+size_t	ft_strlen(const char *s);
 
 #endif
