@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/04 15:04:10 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/05 12:52:48 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,9 +97,6 @@ extern pthread_mutex_t	mutex;
 void	free(void *ptr);
 void	*malloc(size_t size);
 
-void	ft_memcpy(void *d, const void *s, size_t n);
-void	ft_putstr_fd(int fd, const char *s);
-void	ft_putnbr_fd(int fd, size_t n);
 void	add_zone_to_allocator(t_zone **allocator_zone, t_zone *zone);
 void	split_block(t_block *block, size_t size);
 void	merge_block(t_block *block);
@@ -115,5 +112,10 @@ void	free_stats(void *ptr, size_t size);
 void	realloc_stats(void *old_ptr, void *new_ptr, size_t old_size, size_t new_size);
 void	malloc_config_init(void);
 void	malloc_config_clean(void);
+
+void	ft_memcpy(void *d, const void *s, size_t n);
+void	ft_putstr_fd(int fd, const char *s);
+void	ft_putnbr_fd(int fd, size_t n);
+int	ft_strncmp(const char *s1, const char *s2, size_t n);
 
 #endif

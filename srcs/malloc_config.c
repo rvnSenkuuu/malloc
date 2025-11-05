@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/03 10:26:17 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/04 14:48:41 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/05 12:53:06 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,9 @@ void	malloc_config_init(void)
 	char	*verbose = getenv("MALLOC_VERBOSE");
 	char	*log_file = getenv("MALLOC_TRACE");
 	
-	if (stats && !strcmp(stats, "true"))
+	if (stats && !ft_strncmp(stats, "true", 4))
 		g_allocator.config.stats = true;
-	if (verbose && !strcmp(verbose, "yes"))
+	if (verbose && !ft_strncmp(verbose, "yes", 3))
 		g_allocator.config.verbose = true;
 	if (log_file) {
 		g_allocator.config.file_fd = open(log_file, O_CREAT | O_WRONLY, 0644);
