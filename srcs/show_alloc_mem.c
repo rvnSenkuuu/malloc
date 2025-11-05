@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/05 11:03:30 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/05 11:23:19 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,8 +201,10 @@ void	print_zone_ex(t_zone *zone, const char *zone_type)
 				offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
 					"                            v                   \n");
 			}
+			write(g_allocator.config.file_fd, buffer, ft_strlen(buffer));
+			memset(buffer, 0, BUFFER_SIZE);
+			offset = 0;
 		}
-		write(g_allocator.config.file_fd, buffer, ft_strlen(buffer));
 	}
 }
 
