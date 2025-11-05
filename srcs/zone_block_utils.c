@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/29 17:34:07 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/05 14:23:24 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/05 17:32:48 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,8 @@ void	*insert_block_in_zone(t_zone *zone, size_t size)
 			size_t	min_block_size = sizeof(t_block) + ALIGNMENT;
 			if (remaining_size >= min_block_size)
 				split_block(blocks, size);
+			else
+				blocks->free = false;
 			return GET_PTR_FROM_BLOCKS(blocks);
 		}
 	}
