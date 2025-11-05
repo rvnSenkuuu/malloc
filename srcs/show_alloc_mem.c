@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/04 15:26:05 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/05 11:03:30 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,18 @@ void	show_alloc_mem(void)
 	pthread_mutex_unlock(&mutex);
 }
 
+void	zone_header(t_zone *zone, char *buffer, size_t offset, const char *zone_type)
+{
+	offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
+		"\n--------------------------------------------------\n");
+
+	offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " Zone Type: %s | Zone Addr: %p\n Zone Used Size: %.1f%% | Next Zone Addr: %p\n",
+		zone_type, zone, (zone->used_size * 100.0) / zone->size, zone->next);
+
+	offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
+		"--------------------------------------------------\n");	
+}
+
 void	block_header(t_block *block, int block_id, char *buffer, size_t buffer_size)
 {
 	size_t	offset = ft_strlen(buffer);
@@ -157,17 +169,9 @@ void	print_zone_ex(t_zone *zone, const char *zone_type)
 	int	block_id = 0;
 	char	buffer[BUFFER_SIZE] = {0};
 	for (t_zone *current = zone; current; current = current->next) {
-		size_t	offset = strlen(buffer);
+		size_t	offset = ft_strlen(buffer);
 
-		offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
-			"\n--------------------------------------------------\n");
-
-		offset += snprintf(buffer + offset, BUFFER_SIZE - offset, " Zone Type: %s | Zone Addr: %p\n Zone Used Size: %.1f%% | Next Zone Addr: %p\n",
-			zone_type, current, (current->used_size * 100.0) / current->size, current->next);
-
-		offset += snprintf(buffer + offset, BUFFER_SIZE - offset, 
-			"--------------------------------------------------\n");
-
+		zone_header(current, buffer, offset, zone_type);
 		write(g_allocator.config.file_fd, buffer, ft_strlen(buffer));
 
 		for (t_block *block = current->blocks; block; block = block->next) {
@@ -183,7 +187,7 @@ void	print_zone_ex(t_zone *zone, const char *zone_type)
 			
 			block_hex_dump(GET_PTR_FROM_BLOCKS(block), dump_size, buffer, BUFFER_SIZE);
 			if (block->size > 256) {
-				offset = strlen(buffer);
+				offset = ft_strlen(buffer);
 				offset += snprintf(buffer + offset, BUFFER_SIZE - offset,
 					"... (showing first 256 of %zu bytes)\n", block->size);
 			}
