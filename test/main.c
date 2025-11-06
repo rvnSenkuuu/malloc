@@ -5,59 +5,6 @@
 	#include <stdlib.h>
 #endif
 
-// #include <pthread.h>
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <string.h>
-// #include <unistd.h>
-
-// #define NUM_THREADS 10
-// #define OPERATIONS 10
-
-// void *test_simple(void *arg)
-// {
-// 	int	id = *(int *)arg;
-    
-// 	for (int i = 0; i < OPERATIONS; i++) {
-// 		void *ptr = malloc(100);
-// 		if (ptr) {
-// 			memset(ptr, id, 100);
-// 			free(ptr);
-// 		}
-// 	}
-    
-// 	printf("Thread %d terminé\n", id);
-// 	return NULL;
-// }
-
-// int main(void)
-// {
-// 	printf("=== TEST THREAD-SAFETY MALLOC ===\n\n");
-// 	printf("Lancement de %d threads...\n", NUM_THREADS);
-    
-// 	int	ids[NUM_THREADS];
-// 	pthread_t	threads[NUM_THREADS];
-    
-// 	for (int i = 0; i < NUM_THREADS; i++) {
-// 		ids[i] = i;
-// 		pthread_create(&threads[i], NULL, test_simple, &ids[i]);
-// 	}
-
-// 	for (int i = 0; i < NUM_THREADS; i++)
-// 		pthread_join(threads[i], NULL);
-    
-// 	printf("\n✓ TEST RÉUSSI : Pas de crash !\n");
-// 	printf("Si le programme se termine normalement, ton malloc est thread-safe.\n");
-    
-// 	return 0;
-// }
-
-#include <unistd.h>
-#include <string.h>
-#include <stdbool.h>
-
-#define PUTS(s) write(STDOUT_FILENO, s, strlen(s));
-
 void	free_ptrs(void **ptr)
 {
 	size_t	i = 0;
@@ -144,7 +91,7 @@ char	**ft_split(char const *s, char c)
 	return output;
 }
 
-int	main(void)
+int	main()
 {
 	srand(time(NULL));
 
@@ -193,17 +140,15 @@ int	main(void)
 		memset(p, 0, new_sz);
 		char	*to_fill = "realloc";
 		size_t	i = 0;
-		size_t	j = 0;
 		size_t	len = strlen(to_fill);
 		size_t	count = new_sz / len;
-		while (j < count) {
+		while (count--) {
 			strncat(&p[i], to_fill, len);
 			i += len;
-			j++;
 		}
 	}
 	show_alloc_mem_ex();
-	
+
 	free_ptrs((void **)ptrs);
 	free(tiny_ptr);
 	free(small_ptr);
