@@ -5,6 +5,8 @@
 	#include <stdlib.h>
 #endif
 
+#define PUTS(s) write(STDOUT_FILENO, s, strlen(s));
+
 void	free_ptrs(void **ptr)
 {
 	size_t	i = 0;
