@@ -158,12 +158,6 @@ int	main(void)
 	if (tiny_ptr)
 		memset(tiny_ptr, 0x2a, sz);
 
-	PUTS("=====TEST FT_SPLIT=====\n")
-	char	*str = "Test str for split function";
-	char	**ptrs = ft_split(str, ' ');
-	if (!ptrs)
-		PUTS("ft_split failed\n")
-
 	lower_bound = 33;
 	upper_bound = 512;
 	sz = rand() % (upper_bound - lower_bound + 1) + lower_bound;
@@ -178,11 +172,42 @@ int	main(void)
 	if (large_ptr)
 		memset(large_ptr, 0x40, sz);
 
-	show_alloc_mem_ex();
+	PUTS("=====TEST FT_SPLIT=====\n")
+	char	*str = "Test str for split function";
+	char	**ptrs = ft_split(str, ' ');
+	if (!ptrs)
+		PUTS("ft_split failed\n")
 
+	PUTS("=====TEST REALLOC=====\n")
+
+	size_t	old_sz = 256;
+	char	*p = malloc(old_sz);
+	if (p) {
+		for (size_t i = 0; i < old_sz; i++)
+			p[i] = i;
+	}
+
+	size_t	new_sz = old_sz * 2;
+	p = realloc(p, new_sz);
+	if (p) {
+		memset(p, 0, new_sz);
+		char	*to_fill = "realloc";
+		size_t	i = 0;
+		size_t	j = 0;
+		size_t	len = strlen(to_fill);
+		size_t	count = new_sz / len;
+		while (j < count) {
+			strncat(&p[i], to_fill, len);
+			i += len;
+			j++;
+		}
+	}
+	show_alloc_mem_ex();
+	
 	free_ptrs((void **)ptrs);
 	free(tiny_ptr);
 	free(small_ptr);
 	free(large_ptr);
+	free(p);
 	return 0;
 }
