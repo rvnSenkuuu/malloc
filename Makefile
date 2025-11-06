@@ -6,7 +6,7 @@
 #    By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/08 15:06:11 by tkara2            #+#    #+#              #
-#    Updated: 2025/11/05 15:01:42 by tkara2           ###   ########.fr        #
+#    Updated: 2025/11/06 10:39:07 by tkara2           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,8 @@ SRCS = srcs/malloc.c \
        srcs/zone_block_utils.c \
        srcs/show_alloc_mem.c \
 	   srcs/malloc_config.c \
-	   srcs/ft_dprintf.c
+	   srcs/utils/utils.c \
+	   srcs/utils/ft_dprintf.c
 
 INCS = incs/malloc_internal.h \
        incs/ft_malloc.h

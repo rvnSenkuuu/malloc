@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:06:25 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/05 15:33:38 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/06 10:38:18 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,8 @@ void	malloc_config_clean(void);
 void	ft_memcpy(void *d, const void *s, size_t n);
 void	ft_putstr_fd(int fd, const char *s);
 void	ft_putnbr_fd(int fd, size_t n);
+void	ft_putstr_fd(int fd, const char *s);
+void	ft_puthex_fd(int fd, size_t addr);
 int	ft_strncmp(const char *s1, const char *s2, size_t n);
 int	ft_dprintf(int fd, const char *format, ...);
 size_t	ft_strlen(const char *s);

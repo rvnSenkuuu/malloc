@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/29 17:34:07 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/05 17:32:48 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/06 10:33:45 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,25 +182,6 @@ bool	search_ptr_in_zone(t_zone *allocator_zone, void *ptr)
 	}
 
 	return false;
-}
-
-void	ft_memcpy(void *d, const void *s, size_t n)
-{
-	unsigned char	*src = (unsigned char *)s;
-	unsigned char	*dest = d;
-
-	while (n--)
-		*dest++ = *src++;
-}
-
-int	ft_strncmp(const char *s1, const char *s2, size_t n)
-{
-	while (s1 && s2 && *s1 == *s2 && n--) {
-		s1++;
-		s2++;
-	}
-
-	return (unsigned char)*s1 - (unsigned char)*s2;
 }
 
 __attribute__((constructor))

@@ -6,77 +6,36 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/05 15:31:59 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/06 10:38:46 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc_internal.h"
 
-size_t	ft_strlen(const char *s)
-{
-	size_t	len = 0;
-	while (s[len])
-		len++;
-	return len;
-}
-
-static void	ft_putstr(const char *s)
-{
-	write(STDOUT_FILENO, s, ft_strlen(s));
-}
-
-void	ft_putstr_fd(int fd, const char *s)
-{
-	write(fd, s, ft_strlen(s));
-}
-
-void	ft_puthex(size_t addr)
-{
-	char	*base = "0123456789ABCDEF";
-
-	if (addr >= 16)
-		ft_puthex(addr / 16);
-	write(STDOUT_FILENO, &base[addr % 16], sizeof(char));
-}
-
-void	ft_putnbr_fd(int fd, size_t n)
-{
-	int	i = 19;
-	char	buf[21] = {0};
-
-	while (n > 0) {
-		buf[i] = (n % 10) + '0';
-		--i;
-		n /= 10;
-	}
-	
-	write(fd, buf, sizeof(buf));
-}
-
 void	print_zone_info(t_zone *zone, const char *zone_type)
 {
-	ft_putstr(zone_type);
-	ft_putstr(" : ");
-	ft_putstr("0x");
-	ft_puthex((size_t)zone);
-	ft_putstr("\n");
+	ft_putstr_fd(g_allocator.config.file_fd, zone_type);
+	ft_putstr_fd(g_allocator.config.file_fd, " : ");
+	ft_putstr_fd(g_allocator.config.file_fd, "0x");
+	ft_puthex_fd(g_allocator.config.file_fd, (size_t)zone);
+	ft_putstr_fd(g_allocator.config.file_fd, "\n");
 
 	size_t total_bytes = 0;
 	for (t_zone *current = zone; current; current = current->next) {
 		for (t_block *blocks = current->blocks; blocks; blocks = blocks->next) {
 			total_bytes += blocks->size;
-			ft_putstr("0x");
-			ft_puthex((size_t)blocks);
-			ft_putstr(" - ");
-			ft_putstr("0x");
-			ft_puthex((size_t)blocks + blocks->size);
-			ft_putstr(" : ");
-			ft_putnbr_fd(STDOUT_FILENO, blocks->size);
-			ft_putstr(" bytes\n");
+			ft_putstr_fd(g_allocator.config.file_fd, "0x");
+			ft_puthex_fd(g_allocator.config.file_fd, (size_t)blocks);
+			ft_putstr_fd(g_allocator.config.file_fd, " - ");
+			ft_putstr_fd(g_allocator.config.file_fd, "0x");
+			ft_puthex_fd(g_allocator.config.file_fd, (size_t)blocks + blocks->size);
+			ft_putstr_fd(g_allocator.config.file_fd, " : ");
+			ft_putnbr_fd(g_allocator.config.file_fd, blocks->size);
+			ft_putstr_fd(g_allocator.config.file_fd, " bytes\n");
 		}
-		ft_putstr("Total bytes: ");
-		ft_putnbr_fd(STDOUT_FILENO, total_bytes);
-		ft_putstr(" bytes\n");
+		ft_putstr_fd(g_allocator.config.file_fd, "Total bytes: ");
+		ft_putnbr_fd(g_allocator.config.file_fd, total_bytes);
+		ft_putstr_fd(g_allocator.config.file_fd, " bytes\n");
 	}
 }
 
