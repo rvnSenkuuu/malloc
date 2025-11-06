@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/10 14:27:50 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/06 10:38:46 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/06 11:21:17 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,14 +89,14 @@ void	block_header(t_block *block, int block_id)
 void	block_hex_dump(void *ptr, size_t size)
 {
 	size_t	i, j;
-	char ascii[17] = {0};
+	char	ascii[17] = {0};
+	char	hex[4] = {0};
 	unsigned char	*data = (unsigned char *)ptr;
 	char	*base = "0123456789abcdef";
 
 	ft_dprintf(g_allocator.config.file_fd, "Block Data: \n");
 	for (i = 0; i < size; ++i) {
 
-		char	hex[4] = {0};
 		hex[0] = base[(data[i] >> 4) & 0x0F];
 		hex[1] = base[data[i] & 0x0F];
 		hex[2] = ' ';

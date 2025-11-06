@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/29 17:34:07 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/06 10:33:45 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/06 11:31:07 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,8 +138,7 @@ void	*insert_block_in_zone(t_zone *zone, size_t size)
 		new_block->prev = last;
 	}
 
-	zone->used_size += total_block_size;
-
+	zone->used_size = (uintptr_t)new_block - (uintptr_t)zone + total_block_size;
 	return GET_PTR_FROM_BLOCKS(new_block);
 }
 

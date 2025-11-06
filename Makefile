@@ -6,7 +6,7 @@
 #    By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/08 15:06:11 by tkara2            #+#    #+#              #
-#    Updated: 2025/11/06 10:39:07 by tkara2           ###   ########.fr        #
+#    Updated: 2025/11/06 10:57:24 by tkara2           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -46,7 +46,7 @@ $(OBJS_DIR)%.o: %.c $(INCS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 TEST_DIR = test/
-TEST_SRC = $(TEST_DIR)test.c
+TEST_SRC = $(TEST_DIR)main.c
 TEST_OBJS = $(patsubst $(TEST_DIR)%.c, $(TEST_DIR)%, $(TEST_SRC))
 
 USE_FT_LIB ?= 0
@@ -54,10 +54,10 @@ USE_FT_LIB ?= 0
 ifeq ($(USE_FT_LIB), 1)
 	CFLAGS += -DUSE_FT_LIB
 test: $(TARGET) $(INCS) $(TEST_OBJS)
-	LD_PRELOAD=./$(NAME) ./test/test
+	LD_PRELOAD=./$(NAME) ./test/main
 else
 test: $(TARGET) $(INCS) $(TEST_OBJS)
-	./test/test
+	./test/main
 endif
 
 $(TEST_DIR)%: $(TEST_DIR)%.c $(INCS)
