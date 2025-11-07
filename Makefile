@@ -6,7 +6,7 @@
 #    By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/10/08 15:06:11 by tkara2            #+#    #+#              #
-#    Updated: 2025/11/06 10:57:24 by tkara2           ###   ########.fr        #
+#    Updated: 2025/11/07 10:47:21 by tkara2           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,33 +45,15 @@ $(OBJS_DIR)%.o: %.c $(INCS)
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-TEST_DIR = test/
-TEST_SRC = $(TEST_DIR)main.c
-TEST_OBJS = $(patsubst $(TEST_DIR)%.c, $(TEST_DIR)%, $(TEST_SRC))
-
-USE_FT_LIB ?= 0
-
-ifeq ($(USE_FT_LIB), 1)
-	CFLAGS += -DUSE_FT_LIB
-test: $(TARGET) $(INCS) $(TEST_OBJS)
-	LD_PRELOAD=./$(NAME) ./test/main
-else
-test: $(TARGET) $(INCS) $(TEST_OBJS)
-	./test/main
-endif
-
-$(TEST_DIR)%: $(TEST_DIR)%.c $(INCS)
-	$(CC) $(CFLAGS) $< -L. -lft_malloc -Wl,-rpath=. -o $@
-
 clean:
 	$(RM) $(OBJS_DIR)
 
 fclean: clean
-	$(RM) $(TARGET) $(NAME) $(TEST_DIR)*.d $(TEST_OBJS)
+	$(RM) $(TARGET) $(NAME)
 
 re: fclean 
 	$(MAKE) all
 
 -include $(D_FILES)
 
-.PHONY: all clean fclean re test
+.PHONY: all clean fclean re

@@ -1,6 +1,6 @@
+#include "ft_malloc.h"
 #include <pthread.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
@@ -21,7 +21,7 @@ void *simple_test(void *arg)
 		}
 	}
 
-	printf("Thread %d finish\n", id);
+	PUTS("Thread finish\n")
 	return NULL;
 }
 
@@ -37,9 +37,11 @@ int	main(void)
 		pthread_create(&threads[i], NULL, simple_test, &ids[i]);
 	}
 
+	show_alloc_mem_ex();
+
 	for (int i = 0; i < NUM_THREADS; i++)
 		pthread_join(threads[i], NULL);
 
-	PUTS("\n TEST THREAD SUCCESS\n")
+	PUTS("\nTEST THREAD SUCCESS\n")
 	return 0;
 }
