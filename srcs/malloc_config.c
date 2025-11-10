@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/03 10:26:17 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/05 12:53:06 by tkara2           ###   ########.fr       */
+/*   Updated: 2025/11/10 09:54:38 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,37 +43,28 @@ void	malloc_config_clean(void)
 	if (!g_allocator.config.config_initialized)
 		return;
 
-	int	len;
-	char	buffer[128];
 	if (g_allocator.config.stats) {
 		
-		ft_putstr_fd(g_allocator.config.file_fd, "=== MALLOC STATISTICS ===\n");
+		ft_dprintf(g_allocator.config.file_fd, "=== MALLOC STATISTICS ===\n");
 
-		len = snprintf(buffer, sizeof(buffer), "Total allocations: %zu\n", g_allocator.config.total_allocs);
-        write(g_allocator.config.file_fd, buffer, len);
+		ft_dprintf(g_allocator.config.file_fd, "Total allocations: %d\n", g_allocator.config.total_allocs);
 		
-		len = snprintf(buffer, sizeof(buffer), "Total frees: %zu\n", g_allocator.config.total_frees);
-        write(g_allocator.config.file_fd, buffer, len);
+		ft_dprintf(g_allocator.config.file_fd, "Total frees: %d\n", g_allocator.config.total_frees);
 		
-		len = snprintf(buffer, sizeof(buffer), "Block allocation count: %zu\n", g_allocator.config.total_frees);
-        write(g_allocator.config.file_fd, buffer, len);
+		ft_dprintf(g_allocator.config.file_fd, "Block allocation count: %d\n", g_allocator.config.total_frees);
 		
-		len = snprintf(buffer, sizeof(buffer), "Block allocated: %zu\n", g_allocator.config.bytes_allocated);
-        write(g_allocator.config.file_fd, buffer, len);
+		ft_dprintf(g_allocator.config.file_fd, "Block allocated: %d\n", g_allocator.config.bytes_allocated);
 		
-		len = snprintf(buffer, sizeof(buffer), "Block freed: %zu\n", g_allocator.config.bytes_freed);
-        write(g_allocator.config.file_fd, buffer, len);
+		ft_dprintf(g_allocator.config.file_fd, "Block freed: %d\n", g_allocator.config.bytes_freed);
 		
-		if (g_allocator.config.allocated_block_count > 0) {
-			len = snprintf(buffer, sizeof(buffer),
-                       "\nWARNING: %zu memory block(s) leaks detected!\n",
+		if (g_allocator.config.allocated_block_count > 0)
+			ft_dprintf(g_allocator.config.file_fd,
+                       "\nWARNING: %d memory block(s) leaks detected!\n",
                        g_allocator.config.allocated_block_count);
-        	write(g_allocator.config.file_fd, buffer, len);
-		}
 		else
-			ft_putstr_fd(g_allocator.config.file_fd, "\nNo memory leaks detected\n");
+			ft_dprintf(g_allocator.config.file_fd, "\nNo memory leaks detected\n");
 		
-		ft_putstr_fd(g_allocator.config.file_fd, "=========================\n");
+		ft_dprintf(g_allocator.config.file_fd, "=========================\n");
 	}
 
 	if (g_allocator.config.file_fd != STDERR_FILENO && g_allocator.config.file_fd != -1)
@@ -91,11 +82,8 @@ void	malloc_stats(void *ptr, size_t size)
 		g_allocator.config.bytes_allocated += size;
 	}
 
-	if (g_allocator.config.verbose) {
-		char	buffer[128];
-		int	len = snprintf(buffer, sizeof(buffer), "[MALLOC] malloc(%zu) = %p\n", size, ptr);
-		write(g_allocator.config.file_fd, buffer, len);
-	}
+	if (g_allocator.config.verbose)
+		ft_dprintf(g_allocator.config.file_fd, "[MALLOC] malloc(%d) = %p\n", size, ptr);
 }
 
 void	free_stats(void *ptr, size_t size)
@@ -108,11 +96,9 @@ void	free_stats(void *ptr, size_t size)
 		g_allocator.config.allocated_block_count--;
 		g_allocator.config.bytes_freed += size;
 	}
-	if (g_allocator.config.verbose) {
-		char	buffer[128];
-		int	len = snprintf(buffer, sizeof(buffer), "[MALLOC] free(%p) = %zu bytes\n", ptr, size);
-		write(g_allocator.config.file_fd, buffer, len);
-	}
+	if (g_allocator.config.verbose)
+		ft_dprintf(g_allocator.config.file_fd, "[MALLOC] free(%p) = %d bytes\n", 
+			ptr, size);
 }
 
 void	realloc_stats(void *old_ptr, void *new_ptr, size_t old_size, size_t new_size)
@@ -121,10 +107,7 @@ void	realloc_stats(void *old_ptr, void *new_ptr, size_t old_size, size_t new_siz
 		return;
 
     if (g_allocator.config.verbose)
-    {
-        char buffer[128];
-        int len = snprintf(buffer, sizeof(buffer), "[MALLOC] realloc(%p, %zu) = %p [was %zu bytes]\n",
-						  old_ptr, new_size, new_ptr, old_size);
-        write(g_allocator.config.file_fd, buffer, len);
-    }
+		ft_dprintf(g_allocator.config.file_fd, 
+			"[MALLOC] realloc(%p, %d) = %p [was %d bytes]\n", 
+			old_ptr, new_size, new_ptr, old_size);
 }
