@@ -78,8 +78,10 @@ void	*small_malloc(t_zone **global_zone, size_t size)
 
 void	*malloc(size_t size)
 {
-	if (size == 0)
+	if (size <= 0) {
+		errno = ENOMEM;
 		return NULL;
+	}
 
 	pthread_mutex_lock(&mutex);
 
