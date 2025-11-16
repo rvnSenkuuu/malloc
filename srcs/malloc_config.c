@@ -76,11 +76,9 @@ void	malloc_stats(void *ptr, size_t size)
 	if (!g_allocator.config.config_initialized)
 		malloc_config_init();
 
-	if (g_allocator.config.stats) {
-		g_allocator.config.total_allocs++;
-		g_allocator.config.allocated_block_count++;
-		g_allocator.config.bytes_allocated += size;
-	}
+	g_allocator.config.total_allocs++;
+	g_allocator.config.allocated_block_count++;
+	g_allocator.config.bytes_allocated += size;
 
 	if (g_allocator.config.verbose)
 		ft_dprintf(g_allocator.config.file_fd, "[MALLOC] malloc(%d) = %p\n", size, ptr);
@@ -91,11 +89,10 @@ void	free_stats(void *ptr, size_t size)
 	if (!g_allocator.config.config_initialized)
 		return;
 
-	if (g_allocator.config.stats) {
-		g_allocator.config.total_frees++;
-		g_allocator.config.allocated_block_count--;
-		g_allocator.config.bytes_freed += size;
-	}
+	g_allocator.config.total_frees++;
+	g_allocator.config.allocated_block_count--;
+	g_allocator.config.bytes_freed += size;
+
 	if (g_allocator.config.verbose)
 		ft_dprintf(g_allocator.config.file_fd, "[MALLOC] free(%p) = %d bytes\n", 
 			ptr, size);

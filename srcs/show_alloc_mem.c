@@ -16,26 +16,20 @@ void	print_zone_info(t_zone *zone, const char *zone_type)
 {
 	ft_putstr_fd(g_allocator.config.file_fd, zone_type);
 	ft_putstr_fd(g_allocator.config.file_fd, " : ");
-	ft_putstr_fd(g_allocator.config.file_fd, "0x");
-	ft_puthex_fd(g_allocator.config.file_fd, (size_t)zone);
+	PUT_PTR_ADDRESS(zone)
 	ft_putstr_fd(g_allocator.config.file_fd, "\n");
 
 	size_t total_bytes = 0;
 	for (t_zone *current = zone; current; current = current->next) {
 		for (t_block *blocks = current->blocks; blocks; blocks = blocks->next) {
 			total_bytes += blocks->size;
-			ft_putstr_fd(g_allocator.config.file_fd, "0x");
-			ft_puthex_fd(g_allocator.config.file_fd, (size_t)blocks);
+			PUT_PTR_ADDRESS(blocks)
 			ft_putstr_fd(g_allocator.config.file_fd, " - ");
-			ft_putstr_fd(g_allocator.config.file_fd, "0x");
-			ft_puthex_fd(g_allocator.config.file_fd, (size_t)blocks + blocks->size);
+			PUT_PTR_ADDRESS((size_t)blocks + blocks->size)
 			ft_putstr_fd(g_allocator.config.file_fd, " : ");
-			ft_putnbr_fd(g_allocator.config.file_fd, blocks->size);
-			ft_putstr_fd(g_allocator.config.file_fd, " bytes\n");
+			PUT_BLOCK_SIZE(blocks->size)
 		}
-		ft_putstr_fd(g_allocator.config.file_fd, "Total bytes: ");
-		ft_putnbr_fd(g_allocator.config.file_fd, total_bytes);
-		ft_putstr_fd(g_allocator.config.file_fd, " bytes\n");
+		PUT_TOTAL_BYTE(total_bytes)
 	}
 }
 

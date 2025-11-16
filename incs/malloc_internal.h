@@ -41,6 +41,16 @@
 #define GET_PTR_FROM_BLOCKS(blocks) ((void *)((uintptr_t)blocks + sizeof(t_block)))
 #define GET_BLOCKS_FROM_PTR(ptr) ((t_block *)((uintptr_t)ptr - sizeof(t_block)))
 
+#define PUT_PTR_ADDRESS(ptr) ft_putstr_fd(g_allocator.config.file_fd, "0x"); \
+							ft_puthex_fd(g_allocator.config.file_fd, (size_t)ptr);
+
+#define PUT_TOTAL_BYTE(total_bytes) ft_putstr_fd(g_allocator.config.file_fd, "Total bytes: "); \
+									ft_putnbr_fd(g_allocator.config.file_fd, total_bytes);     \
+									ft_putstr_fd(g_allocator.config.file_fd, " bytes\n");
+
+#define PUT_BLOCK_SIZE(size) ft_putnbr_fd(g_allocator.config.file_fd, size); \
+							ft_putstr_fd(g_allocator.config.file_fd, " bytes\n");
+
 #define MUNMAP_ZONES(zones) do {      \
 		zone = zones;                 \
 		while (zone) {                \

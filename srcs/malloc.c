@@ -100,7 +100,9 @@ void	*malloc(size_t size)
 		return NULL;
 	}
 
-	malloc_stats(ptr, size);
+	if (g_allocator.config.stats)
+		malloc_stats(ptr, size);
+
 	pthread_mutex_unlock(&mutex);
 	return ptr;
 }
@@ -129,7 +131,9 @@ void	free(void *ptr)
 	block->free = true;
 	merge_block(block);
 	
-	free_stats(ptr, block_size);
+	if (g_allocator.config.stats)
+		free_stats(ptr, block_size);
+
 	pthread_mutex_unlock(&mutex);
 }
 
@@ -191,10 +195,12 @@ void	*realloc(void *ptr, size_t size)
 		return ptr;
 	}
 
+	if (g_allocator.config.stats)
+		realloc_stats(ptr, new_ptr, old_block_size, size);
+
 	ft_memcpy(new_ptr, ptr, block->size);
 	free(ptr);
 
-	realloc_stats(ptr, new_ptr, old_block_size, size);
 	pthread_mutex_unlock(&mutex);
 	return new_ptr;
 }
