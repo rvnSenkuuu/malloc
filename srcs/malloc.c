@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/08 15:05:28 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/04 15:08:57 by tkara2           ###   ########.fr       */
+/*   Updated: 2026/09/07 15:40:06 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ void	*small_malloc(t_zone **global_zone, size_t size)
 
 void	*malloc(size_t size)
 {
-	if (size <= 0) {
+	if (size == 0) {
 		errno = ENOMEM;
 		return NULL;
 	}
@@ -181,7 +181,6 @@ void	*realloc(void *ptr, size_t size)
 	size_t	old_block_size = block->size;
 
 	if (block->size < size) {
-		pthread_mutex_unlock(&mutex);
 		void	*merged_ptr = try_avoid_reallocating(block, size);
 		if (merged_ptr) {
 			pthread_mutex_unlock(&mutex);
@@ -198,7 +197,7 @@ void	*realloc(void *ptr, size_t size)
 	if (g_allocator.config.stats)
 		realloc_stats(ptr, new_ptr, old_block_size, size);
 
-	ft_memcpy(new_ptr, ptr, block->size);
+	ft_memcpy(new_ptr, ptr, old_block_size < size ? old_block_size : size);
 	free(ptr);
 
 	pthread_mutex_unlock(&mutex);

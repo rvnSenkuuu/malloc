@@ -6,7 +6,7 @@
 /*   By: tkara2 <tkara2@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/03 10:26:17 by tkara2            #+#    #+#             */
-/*   Updated: 2025/11/10 09:54:38 by tkara2           ###   ########.fr       */
+/*   Updated: 2026/09/07 15:33:04 by tkara2           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,17 +44,11 @@ void	malloc_config_clean(void)
 		return;
 
 	if (g_allocator.config.stats) {
-		
 		ft_dprintf(g_allocator.config.file_fd, "=== MALLOC STATISTICS ===\n");
-
 		ft_dprintf(g_allocator.config.file_fd, "Total allocations: %d\n", g_allocator.config.total_allocs);
-		
 		ft_dprintf(g_allocator.config.file_fd, "Total frees: %d\n", g_allocator.config.total_frees);
-		
 		ft_dprintf(g_allocator.config.file_fd, "Block allocation count: %d\n", g_allocator.config.total_frees);
-		
 		ft_dprintf(g_allocator.config.file_fd, "Block allocated: %d\n", g_allocator.config.bytes_allocated);
-		
 		ft_dprintf(g_allocator.config.file_fd, "Block freed: %d\n", g_allocator.config.bytes_freed);
 		
 		if (g_allocator.config.allocated_block_count > 0)
@@ -63,7 +57,6 @@ void	malloc_config_clean(void)
                        g_allocator.config.allocated_block_count);
 		else
 			ft_dprintf(g_allocator.config.file_fd, "\nNo memory leaks detected\n");
-		
 		ft_dprintf(g_allocator.config.file_fd, "=========================\n");
 	}
 
